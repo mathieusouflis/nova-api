@@ -1,0 +1,41 @@
+{
+  "7226684499591958528": {
+    "id": "7226684499591958528",
+    "role": "Member",
+    "status": "public",
+    "email": "mathieu@souflis.fr",
+    "password": "$2a$10$Kf18ch0dO5Fvww423VsPbeEyvsEZt/Yq1Xxf9YpcAPoEwSuvHLiUG",
+    "username": "mathieusouflis",
+    "description": null,
+    "avatar": null,
+    "banner": null,
+    "date_of_birth": null,
+    "creation_date": "1722975849994"
+  },
+  "7226691822775439360": {
+    "id": "7226691822775439360",
+    "role": "Member",
+    "status": "public",
+    "email": "v11@mathieusouflis.com",
+    "password": "$2a$10$RCGXpsXhGNCO3eWI.BK1ou5v1PQk9mQfyD5s4oWUiYBNgB77dRSmy",
+    "username": "math_v11",
+    "description": null,
+    "avatar": null,
+    "banner": null,
+    "date_of_birth": null,
+    "creation_date": "1722977595990"
+  },
+  "7230287854662848512": {
+    "id": "7230287854662848512",
+    "role": "Member",
+    "status": "public",
+    "email": "Maxous08@gmail.com",
+    "password": "$2a$10$tGCu8xzKbggyL2kyHbVBAeOiY3IFBMEYku8yuWALLmR9zAA/r2LqC",
+    "username": "Maxous08",
+    "description": null,
+    "avatar": null,
+    "banner": null,
+    "date_of_birth": null,
+    "creation_date": "1723834956798"
+  }
+}
