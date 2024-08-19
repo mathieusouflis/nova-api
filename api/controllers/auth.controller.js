@@ -9,7 +9,6 @@ const { validateUsername } = require("../validators/username.validator");
 
 exports.login = (req, res) => {
   let { email, password } = req.body;
-  console.log(req.body);
   // email = decrypt(email);
   // password = decrypt(password);
 

@@ -24,8 +24,28 @@ exports.liking_users = (req, res) => {
   res.json({
     likes: likes_data
       .filter((like) => like.post_id === post_id)
-      .map((like) => like.post_id),
+      .map((like) => like.user_id),
   });
+};
+
+exports.is_liking_post = (req, res) => {
+  const { user_id } = req.params;
+  const { post_id } = req.params;
+
+  const posts_data = read("posts");
+  if (!posts_data[post_id]) return res.sendStatus(404);
+
+  const likes_data = read("likes");
+
+  const likes = likes_data.filter(
+    (like) => like.post_id === post_id && like.user_id === user_id,
+  );
+
+  if (likes.length > 0) {
+    return res.sendStatus(200);
+  } else {
+    return res.sendStatus(404);
+  }
 };
 
 exports.like = (req, res) => {
@@ -71,9 +91,8 @@ exports.unlike = (req, res) => {
     )
   )
     return res.sendStatus(404);
-
   likes_data = likes_data.filter(
-    (like) => like.user_id != user_id && like.post_id !== post_id,
+    (like) => like.user_id !== user_id || like.post_id !== post_id,
   );
 
   write("likes", likes_data);

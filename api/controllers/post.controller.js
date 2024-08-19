@@ -60,7 +60,7 @@ exports.create = async (req, res) => {
 
   write("posts", data);
 
-  res.sendStatus(201);
+  res.json(data[id]).sendStatus(201);
 };
 
 exports.delete = (req, res) => {
