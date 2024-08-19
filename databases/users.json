@@ -24,18 +24,5 @@
     "banner": null,
     "date_of_birth": null,
     "creation_date": "1722977595990"
-  },
-  "7230287854662848512": {
-    "id": "7230287854662848512",
-    "role": "Member",
-    "status": "public",
-    "email": "Maxous08@gmail.com",
-    "password": "$2a$10$tGCu8xzKbggyL2kyHbVBAeOiY3IFBMEYku8yuWALLmR9zAA/r2LqC",
-    "username": "Maxous08",
-    "description": null,
-    "avatar": null,
-    "banner": null,
-    "date_of_birth": null,
-    "creation_date": "1723834956798"
   }
 }
