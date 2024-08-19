@@ -20,6 +20,6 @@ const corsOptions = {
 
 // app.use(cors(corsOptions));
 
-app.use("/api", cors(corsOptions); path, routes);
+app.use("/api", cors(corsOptions), path, routes);
 
 module.exports = app;
