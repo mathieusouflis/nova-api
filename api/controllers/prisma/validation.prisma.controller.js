@@ -10,7 +10,7 @@ exports.isUsernameTaken = async (username) => {
       username: true,
     },
   });
-
+  await prisma.$disconnect();
   return user ? true : false;
 };
 
@@ -21,5 +21,6 @@ exports.isEmailTaken = async (email) => {
     select: { email: true },
   });
 
+  await prisma.$disconnect();
   return user ? true : false;
 };

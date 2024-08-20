@@ -14,7 +14,7 @@ exports.likedPost = async (user_id) => {
 
 exports.likingUsers = async (post_id) => {
   const prisma = new PrismaClient();
-  return await prisma.likes.findMany({
+  const like = await prisma.likes.findMany({
     where: {
       post_id,
     },
@@ -22,11 +22,14 @@ exports.likingUsers = async (post_id) => {
       user_id: true,
     },
   });
+
+  await prisma.$disconnect();
+  return like;
 };
 
 exports.likeExist = async (user_id, post_id) => {
   const prisma = new PrismaClient();
-  return (await prisma.likes.findFirst({
+  const like = (await prisma.likes.findFirst({
     where: {
       post_id,
       user_id,
@@ -34,26 +37,34 @@ exports.likeExist = async (user_id, post_id) => {
   }))
     ? true
     : false;
+
+  await prisma.$disconnect();
+  return like;
 };
 
 exports.likePost = async (user_id, post_id) => {
   const prisma = new PrismaClient();
   const id = await id_generator();
-  return await prisma.likes.create({
+  const like = await prisma.likes.create({
     data: {
       id: id.toString(),
       user_id,
       post_id,
     },
   });
+  await prisma.$disconnect();
+  return like;
 };
 
 exports.unlikePost = async (user_id, post_id) => {
   const prisma = new PrismaClient();
-  return await prisma.likes.deleteMany({
+  const like = await prisma.likes.deleteMany({
     where: {
       user_id,
       post_id,
     },
   });
+
+  await prisma.$disconnect();
+  return like;
 };

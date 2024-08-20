@@ -4,7 +4,7 @@ const { id_generator } = require("../../../utils/functions/id");
 exports.createPost = async (author_id, text, conversation) => {
   const prisma = new PrismaClient();
   const id = await id_generator();
-  return await prisma.posts.create({
+  const post = await prisma.posts.create({
     data: {
       id: id.toString(),
       conversation: conversation ? conversation.toString() : id.toString(),
@@ -13,16 +13,21 @@ exports.createPost = async (author_id, text, conversation) => {
       creation_date: Date.now().toString(),
     },
   });
+
+  await prisma.$disconnect();
+  return post;
 };
 
 exports.getPostById = async (id) => {
   const prisma = new PrismaClient();
 
-  return await prisma.posts.findUnique({
+  const post = await prisma.posts.findUnique({
     where: {
       id,
     },
   });
+  await prisma.$disconnect();
+  return post;
 };
 
 exports.queryPosts = async (
@@ -35,7 +40,7 @@ exports.queryPosts = async (
   conversation_id,
 ) => {
   const prisma = new PrismaClient();
-  return await prisma.posts.findMany({
+  const post = await prisma.posts.findMany({
     where: {
       AND: [
         user_id ? { author_id: user_id } : {},
@@ -51,4 +56,6 @@ exports.queryPosts = async (
       creation_date: "desc",
     },
   });
+  await prisma.$disconnect();
+  return post;
 };

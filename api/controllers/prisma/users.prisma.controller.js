@@ -16,6 +16,7 @@ exports.createUser = async (id, email, password, username) => {
     },
   });
 
+  await prisma.$disconnect();
   return user;
 };
 
@@ -38,6 +39,7 @@ exports.findUserByUsername = async (username) => {
     },
   });
 
+  await prisma.$disconnect();
   return user;
 };
 
@@ -60,12 +62,13 @@ exports.findUserById = async (id) => {
     },
   });
 
+  await prisma.$disconnect();
   return user;
 };
 
 exports.findUserByEmailAndPassword = async (email) => {
   const prisma = new PrismaClient();
-  return await prisma.users.findUnique({
+  const user = await prisma.users.findUnique({
     where: {
       email,
     },
@@ -76,4 +79,6 @@ exports.findUserByEmailAndPassword = async (email) => {
       password: true,
     },
   });
+  await prisma.$disconnect();
+  return user;
 };
