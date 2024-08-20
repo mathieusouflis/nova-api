@@ -41,6 +41,28 @@ exports.findUserByUsername = async (username) => {
   return user;
 };
 
+exports.findUserById = async (id) => {
+  const prisma = new PrismaClient();
+
+  const user = await prisma.users.findUnique({
+    where: {
+      id,
+    },
+    select: {
+      id: true,
+      username: true,
+      status: true,
+      description: true,
+      avatar: true,
+      banner: true,
+      date_of_birth: true,
+      creation_date: true,
+    },
+  });
+
+  return user;
+};
+
 exports.findUserByEmailAndPassword = async (email) => {
   const prisma = new PrismaClient();
   return await prisma.users.findUnique({
