@@ -3,7 +3,7 @@ const { PrismaClient } = require("@prisma/client");
 exports.isRefreshTokenExist = async (token) => {
   const prisma = new PrismaClient();
   return (await prisma.refresh_tokens.findUnique({
-    wehre: {
+    where: {
       refresh_token: token,
     },
     select: {
