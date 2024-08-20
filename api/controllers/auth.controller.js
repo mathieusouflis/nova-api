@@ -34,6 +34,7 @@ exports.login = async (req, res) => {
   return res.status(200).json({
     access_token: generate_token(user_data, "access"),
     refresh_token,
+    id: user.id,
   });
 };
 
