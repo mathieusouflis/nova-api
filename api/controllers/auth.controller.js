@@ -20,7 +20,7 @@ exports.login = async (req, res) => {
 
   const user = await findUserByEmailAndPassword(email);
   if (!user) return res.status(404).send("User not found").end();
-  if (!compare(password, user.password)) {
+  if ((await compare(password, user.password)) === false) {
     return res.status(401).end("Invalid credentials");
   }
   const user_data = {
