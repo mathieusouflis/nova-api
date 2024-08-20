@@ -1,13 +1,15 @@
 const { read } = require("./database.controller");
+const {
+  findUserById,
+  findUserByUsername,
+} = require("./prisma/users.prisma.controller");
 
-exports.user_by_id = (req, res) => {
+exports.user_by_id = async (req, res) => {
   const { id } = req.params;
-  let data = read("users");
-  const user = data[id];
+  const user = await findUserById(id);
 
   if (!user) return res.status(403).send("User not found");
 
-  delete user["password"];
   res.status(200).json(user);
 };
 
@@ -16,15 +18,13 @@ exports.user_by_ids = (req, res) => {
   if (!ids) return res.status(404).send("Ids's not defined");
   ids = ids.split(",");
 
-  const data = read("users");
   let users = [];
   let not_founds = [];
 
-  ids.forEach((id) => {
-    const user = data[id];
+  ids.forEach(async (id) => {
+    const user = await findUserById(id);
     if (user) {
-      delete user.password;
-      users.push(data[id]);
+      users.push(user);
     } else {
       not_founds.push(id);
     }
@@ -38,18 +38,12 @@ exports.user_by_ids = (req, res) => {
     : res.status(402).send("Users not found");
 };
 
-exports.user_by_username = (req, res) => {
+exports.user_by_username = async (req, res) => {
   const { username } = req.params;
-  const data = read("users");
+  const user = await findUserByUsername(username);
+  if (!user) return res.status(404).send("User not found.");
 
-  for (const user in data) {
-    if (data[user].username === username) {
-      delete data[user].password;
-      res.status(200).json(data[user]);
-      return;
-    }
-  }
-  res.status(404).send("User not found.");
+  return res.status(200).json(user);
 };
 
 exports.user_by_usernames = (req, res) => {
@@ -57,21 +51,16 @@ exports.user_by_usernames = (req, res) => {
   if (!usernames) return res.status(404).send("Usernames's not defined.");
   usernames = usernames.split(",");
 
-  const data = read("users");
   let users = [];
   let not_founds = [];
 
-  usernames.forEach((username) => {
-    let found = false;
-    for (const user in data) {
-      if (data[user].username === username) {
-        delete data[user].password;
-        users.push(data[user]);
-        found = true;
-        break;
-      }
+  usernames.forEach(async (username) => {
+    const user = await findUserByUsername(username);
+    if (!user) {
+      not_founds.push(username);
+    } else {
+      users.push(user);
     }
-    if (!found) not_founds.push(username);
   });
 
   users.length > 0
@@ -93,6 +82,6 @@ exports.delete = (req, res) => {
 
   write("users", data);
   res.status(200).end();
-};
+}; // TO DO
 
 exports.ban = (req, res) => {};

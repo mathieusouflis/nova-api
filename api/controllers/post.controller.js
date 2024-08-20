@@ -1,4 +1,3 @@
-const { id_generator } = require("../../utils/functions/id");
 const { read, write } = require("./database.controller");
 const {
   getPostById,

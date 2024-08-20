@@ -59,10 +59,10 @@ exports.register = async (req, res) => {
   res.status(200).send("User created.").end();
 };
 
-exports.logout = (req, res) => {
+exports.logout = async (req, res) => {
   const { refresh_token } = req.body;
   if (!refresh_token) return res.status(401).send("Missing refresh token");
-  if (isRefreshTokenExist(token) === false)
+  if ((await isRefreshTokenExist(token)) === false)
     return res.status(404).send("Token not found.");
 
   res.status(200).end();
