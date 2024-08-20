@@ -1,0 +1,75 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model block {
+  id                         String @id @db.VarChar(255)
+  blocker                    String @db.VarChar(255)
+  blocked                    String @db.VarChar(255)
+  users_block_blockedTousers users  @relation("block_blockedTousers", fields: [blocked], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "block_blocked_foreign")
+  users_block_blockerTousers users  @relation("block_blockerTousers", fields: [blocker], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "block_blocker_foreign")
+
+  @@index([blocked], map: "block_blocked_foreign")
+  @@index([blocker], map: "block_blocker_foreign")
+}
+
+model followers {
+  id                              String @id @db.VarChar(255)
+  follower                        String @db.VarChar(255)
+  followed                        String @db.VarChar(255)
+  users_followers_followedTousers users  @relation("followers_followedTousers", fields: [followed], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "followers_followed_foreign")
+  users_followers_followerTousers users  @relation("followers_followerTousers", fields: [follower], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "followers_follower_foreign")
+
+  @@index([followed], map: "followers_followed_foreign")
+  @@index([follower], map: "followers_follower_foreign")
+}
+
+model likes {
+  id      String  @id @db.VarChar(255)
+  user_id String  @db.VarChar(255)
+  post_id String? @db.VarChar(255)
+  posts   posts?  @relation(fields: [post_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "likes_post_id_foreign")
+  users   users   @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "likes_user_id_foreign")
+
+  @@index([post_id], map: "likes_post_id_foreign")
+  @@index([user_id], map: "likes_user_id_foreign")
+}
+
+model posts {
+  id            String  @id @db.VarChar(255)
+  conversation  String  @db.VarChar(255)
+  author_id     String  @db.VarChar(255)
+  text          String  @db.Text
+  images        String? @db.VarChar(255)
+  creation_date String  @db.VarChar(255)
+  likes         likes[]
+}
+
+model users {
+  id                                  String      @id @db.VarChar(255)
+  role                                String      @db.VarChar(255)
+  status                              String      @db.VarChar(255)
+  email                               String      @unique(map: "users_email_unique") @db.VarChar(255)
+  password                            String      @db.VarChar(255)
+  username                            String      @unique(map: "users_username_unique") @db.VarChar(15)
+  description                         String?     @db.Text
+  avatar                              String?     @db.VarChar(255)
+  banner                              String?     @db.VarChar(255)
+  date_of_birth                       DateTime?   @db.Date
+  creation_date                       String      @db.VarChar(255)
+  block_block_blockedTousers          block[]     @relation("block_blockedTousers")
+  block_block_blockerTousers          block[]     @relation("block_blockerTousers")
+  followers_followers_followedTousers followers[] @relation("followers_followedTousers")
+  followers_followers_followerTousers followers[] @relation("followers_followerTousers")
+  likes                               likes[]
+}
+
+model refresh_tokens {
+  id            String @id @db.VarChar(255)
+  refresh_token String @unique(map: "refresh_tokens_pk_2") @db.VarChar(512)
+}
