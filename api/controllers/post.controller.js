@@ -1,13 +1,16 @@
 const { id_generator } = require("../../utils/functions/id");
 const { read, write } = require("./database.controller");
+const {
+  getPostById,
+  createPost,
+  queryPosts,
+} = require("./prisma/post.prisma.controller");
 
-exports.get_single_post = (req, res) => {
+exports.get_single_post = async (req, res) => {
   const { id } = req.params;
-  if (isNaN(id)) return res.sendStatus(400);
+  if (isNaN(id)) return res.status(400).end();
 
-  const data = read("posts");
-
-  const post = data[id];
+  const post = await getPostById(id);
 
   if (!post) return res.status(403).send("Post not found");
 
@@ -19,12 +22,11 @@ exports.get_many_posts = (req, res) => {
   if (!ids) return res.status(403).send("Ids's not defined.");
   ids = ids.split(",");
 
-  const data = read("posts");
   let posts = [];
   let not_founds = [];
 
   ids.forEach((id) => {
-    const post = data[id];
+    const post = getPostById(id);
     if (post) {
       posts.push(post);
     } else {
@@ -44,23 +46,11 @@ exports.create = async (req, res) => {
   const { text, conversation } = req.body;
   const user = req.user;
 
-  if (!text) return res.sendStatus(400);
+  if (!text) return res.status(400).end();
 
-  const data = read("posts");
-  const id = await id_generator();
+  const post = await createPost(user.id, text, conversation);
 
-  data[id] = {
-    id: id.toString(),
-    conversation: conversation ? conversation.toString() : id.toString(),
-    author_id: user["id"],
-    text,
-    images: null,
-    creation_date: Date.now().toString(),
-  };
-
-  write("posts", data);
-
-  res.json(data[id]).status(201).end();
+  res.json(post).status(201).end();
 };
 
 exports.delete = (req, res) => {
@@ -68,17 +58,17 @@ exports.delete = (req, res) => {
   const data = read("posts");
   const post = data[id];
 
-  if (!post) return res.sendStatus(404);
-  if (post.author_id !== req.user.id) return res.sendStatus(401);
+  if (!post) return res.status(404).end();
+  if (post.author_id !== req.user.id) return res.status(401).end();
 
   delete data[id];
 
   write("posts", data);
 
-  res.sendStatus(200);
-};
+  res.status(200).end();
+}; // TO DO
 
-exports.query = (req, res) => {
+exports.query = async (req, res) => {
   const {
     max_results,
     start_time,
@@ -89,32 +79,16 @@ exports.query = (req, res) => {
     conversation_id,
   } = req.query;
 
-  const data = read("posts");
-  const posts = Object.values(data);
-  let returned_posts = [];
   const returned_post_number =
     max_results && max_results !== "0" ? parseInt(max_results) : 100;
-
-  for (let post of posts) {
-    if (returned_posts.length === returned_post_number) break;
-
-    if (user_id && post.author_id !== user_id) continue;
-
-    if (conversation_id && post.conversation !== conversation_id) continue;
-
-    if (start_time && post.creation_date < start_time) continue;
-
-    if (end_time && post.creation_date > end_time) continue;
-
-    if (since_id && post.id < since_id) continue;
-
-    if (until_id && post.id > until_id) continue;
-
-    returned_posts.push(post);
-  }
-
-  // Sort the posts in descending order of creation_date
-  returned_posts.sort((a, b) => b.creation_date - a.creation_date);
-
+  const returned_posts = await queryPosts(
+    returned_post_number,
+    start_time,
+    end_time,
+    since_id,
+    until_id,
+    user_id,
+    conversation_id,
+  );
   return res.json({ posts: returned_posts }).status(200);
 };

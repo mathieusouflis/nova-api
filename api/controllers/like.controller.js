@@ -1,100 +1,78 @@
 const { read, write } = require("./database.controller");
+const {
+  likedPost,
+  likingUsers,
+  likeExist,
+  likePost,
+  unlikePost,
+} = require("./prisma/like.prisma.controller");
+const { getPostById } = require("./prisma/post.prisma.controller");
 
-exports.liked_posts = (req, res) => {
+exports.liked_posts = async (req, res) => {
   const { user_id } = req.params;
-  if (req.user.id !== user_id) return res.sendStatus(403);
+  if (req.user.id !== user_id) return res.status(403).end();
 
-  const likes_data = read("likes");
+  const likes = await likedPost(user_id);
 
   res.json({
-    likes: likes_data
-      .filter((like) => like.user_id === user_id)
-      .map((like) => like.post_id),
+    likes: likes.map((like) => like.post_id),
   });
 };
 
-exports.liking_users = (req, res) => {
+exports.liking_users = async (req, res) => {
   const { post_id } = req.params;
-  const posts_data = read("posts");
-  if (!posts_data[post_id]) return res.sendStatus(404);
-  if (posts_data[post_id].author_id !== req.user.id) return res.sendStatus(403);
+  const post = await getPostById(post_id);
+  if (!post) return res.status(404).send("Post not found.").end();
+  if (post.author_id !== req.user.id) return res.status(403).end();
 
-  const likes_data = read("likes");
+  const likes = await likingUsers(post_id);
 
   res.json({
-    likes: likes_data
-      .filter((like) => like.post_id === post_id)
-      .map((like) => like.user_id),
+    likes: likes.map((like) => like.user_id),
   });
 };
 
-exports.is_liking_post = (req, res) => {
+exports.is_liking_post = async (req, res) => {
   const { user_id } = req.params;
   const { post_id } = req.params;
+  if (user_id !== req.user.id) return res.status(403).end();
+  if (!(await getPostById(post_id)))
+    return res.status(404).send("Post not found.").end();
 
-  const posts_data = read("posts");
-  if (!posts_data[post_id]) return res.sendStatus(404);
-
-  const likes_data = read("likes");
-
-  const likes = likes_data.filter(
-    (like) => like.post_id === post_id && like.user_id === user_id,
-  );
-
-  if (likes.length > 0) {
-    return res.sendStatus(200);
+  if (await likeExist(user_id, post_id)) {
+    return res.status(200).end();
   } else {
-    return res.sendStatus(404);
+    return res.status(404).end();
   }
 };
 
-exports.like = (req, res) => {
+exports.like = async (req, res) => {
   const { user_id } = req.params;
   const { post_id } = req.body;
-  if (req.user.id !== user_id) return res.sendStatus(403);
+  if (req.user.id !== user_id) return res.status(403).end();
 
-  const posts_data = read("posts");
-  if (!posts_data[post_id]) return res.sendStatus(404);
+  if ((await getPostById(post_id)) === true)
+    return res.status(404).send("Post not found.").end();
 
-  const likes_data = read("likes");
-  if (
-    likes_data.some(
-      (like) => like.user_id !== user_id && like.post_id !== post_id,
-    )
-  )
-    return res.status(402);
-  console.log("coucou");
+  if (await likeExist(user_id, post_id)) return res.status(402);
 
-  likes_data.push({
-    user_id,
-    post_id,
-  });
-
-  write("likes", likes_data);
-  res.sendStatus(200);
+  await likePost(user_id, post_id);
+  res.status(200).send("Post Liked.").end();
 };
 
-exports.unlike = (req, res) => {
+exports.unlike = async (req, res) => {
   const { user_id } = req.params;
   const { post_id } = req.params;
 
   if (user_id !== req.user.id) return res.send(403);
 
-  const posts_data = read("posts");
-  if (!posts_data[post_id]) return res.sendStatus(404);
+  if (!(await getPostById(post_id)))
+    return res.status(404).send("Post not found.").end();
 
-  let likes_data = read("likes");
+  if ((await likeExist(user_id, post_id)) === false)
+    return res.status(404).send("Like Not found.").end();
 
-  if (
-    likes_data.some(
-      (like) => like.user_id !== user_id && like.post_id !== post_id,
-    )
-  )
-    return res.sendStatus(404);
-  likes_data = likes_data.filter(
-    (like) => like.user_id !== user_id || like.post_id !== post_id,
-  );
+  await unlikePost(user_id, post_id);
 
-  write("likes", likes_data);
-  res.sendStatus(200);
+  res.status(200).send("Post unliked.").end();
 };

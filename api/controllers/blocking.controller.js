@@ -23,10 +23,10 @@ exports.block = (req, res) => {
   const { targeted_user_id } = req.body;
 
   if (req.user.id !== author_id || req.user.id === targeted_user_id)
-    return res.sendStatus(403);
+    return res.status(403).end();
 
   const users_data = read("users");
-  if (!users_data[targeted_user_id]) return res.sendStatus(404);
+  if (!users_data[targeted_user_id]) return res.status(404).end();
 
   const blocks_data = read("blocks");
 
@@ -44,7 +44,7 @@ exports.block = (req, res) => {
   });
 
   write("blocks", blocks_data);
-  res.sendStatus(200);
+  res.status(200).end();
 };
 
 exports.unblock = (req, res) => {
@@ -52,10 +52,10 @@ exports.unblock = (req, res) => {
   const author_id = baseUrl[baseUrl.length - 2];
   const { targeted_user_id } = req.params;
 
-  if (author_id !== req.user.id) return res.send(403);
+  if (author_id !== req.user.id) return res.status(403).end();
 
   const users_data = read("users");
-  if (!users_data[targeted_user_id]) return res.sendStatus(404);
+  if (!users_data[targeted_user_id]) return res.status(404).end();
 
   const blocks_data = read("blocks");
 
@@ -67,9 +67,9 @@ exports.unblock = (req, res) => {
       new_data.push(...blocks_data.slice(i + 1, blocks_data.length));
       write("blocks", new_data);
 
-      return res.sendStatus(200);
+      return res.status(200).end();
     }
   }
 
-  res.sendStatus(404);
+  res.status(404).end();
 };

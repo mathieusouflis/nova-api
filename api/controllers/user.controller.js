@@ -84,15 +84,15 @@ exports.user_by_usernames = (req, res) => {
 
 exports.delete = (req, res) => {
   const { id } = req.params;
-  if (req.user.id !== id) return res.sendStatus(403);
+  if (req.user.id !== id) return res.status(403).end();
 
   const data = read("users");
-  if (!data[id]) return res.sendStatus(404);
+  if (!data[id]) return res.status(404).end();
 
   delete data[id];
 
   write("users", data);
-  res.sendStatus(200);
+  res.status(200).end();
 };
 
 exports.ban = (req, res) => {};

@@ -38,7 +38,7 @@ exports.follow = (req, res) => {
   if (user_id !== req.user.id || user_id === targeted_id) return res.send(403);
 
   const users_data = read("users");
-  if (!users_data[targeted_id]) return res.sendStatus(404);
+  if (!users_data[targeted_id]) return res.status(404).end();
 
   const follow_data = read("followers");
 
@@ -56,7 +56,7 @@ exports.follow = (req, res) => {
   });
 
   write("followers", follow_data);
-  res.sendStatus(200);
+  res.status(200).end();
 };
 
 exports.unfollow = (req, res) => {
@@ -67,7 +67,7 @@ exports.unfollow = (req, res) => {
   if (user_id !== req.user.id) return res.send(403);
 
   const users_data = read("users");
-  if (!users_data[target_user_id]) return res.sendStatus(404);
+  if (!users_data[target_user_id]) return res.status(404).end();
 
   const data = read("followers");
 
@@ -79,9 +79,9 @@ exports.unfollow = (req, res) => {
       new_data.push(...data.slice(i + 1, data.length));
       write("followers", new_data);
 
-      return res.sendStatus(200);
+      return res.status(200).end();
     }
   }
 
-  res.sendStatus(404);
+  res.status(404).end();
 };
