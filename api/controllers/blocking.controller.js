@@ -26,7 +26,8 @@ exports.block = (req, res) => {
     return res.status(403).end();
 
   const users_data = read("users");
-  if (!users_data[targeted_user_id]) return res.status(404).end();
+  if (!users_data[targeted_user_id])
+    return res.status(404).send("User not found").end();
 
   const blocks_data = read("blocks");
 
@@ -44,7 +45,7 @@ exports.block = (req, res) => {
   });
 
   write("blocks", blocks_data);
-  res.status(200).end();
+  res.status(200).send("User blocked").end();
 };
 
 exports.unblock = (req, res) => {
@@ -52,10 +53,11 @@ exports.unblock = (req, res) => {
   const author_id = baseUrl[baseUrl.length - 2];
   const { targeted_user_id } = req.params;
 
-  if (author_id !== req.user.id) return res.status(403).end();
+  if (author_id !== req.user.id) return res.status(403).send("Forbiden").end();
 
   const users_data = read("users");
-  if (!users_data[targeted_user_id]) return res.status(404).end();
+  if (!users_data[targeted_user_id])
+    return res.status(404).send("User not found").end();
 
   const blocks_data = read("blocks");
 
@@ -67,9 +69,9 @@ exports.unblock = (req, res) => {
       new_data.push(...blocks_data.slice(i + 1, blocks_data.length));
       write("blocks", new_data);
 
-      return res.status(200).end();
+      return res.status(200).send("User unblocked").end();
     }
   }
 
-  res.status(404).end();
+  res.status(404).send("Block not found").end();
 };

@@ -65,5 +65,5 @@ exports.logout = async (req, res) => {
   if ((await isRefreshTokenExist(token)) === false)
     return res.status(404).send("Token not found.");
 
-  res.status(200).end();
+  res.status(200).send("Logged out").end();
 };

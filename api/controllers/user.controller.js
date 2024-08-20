@@ -73,15 +73,15 @@ exports.user_by_usernames = (req, res) => {
 
 exports.delete = (req, res) => {
   const { id } = req.params;
-  if (req.user.id !== id) return res.status(403).end();
+  if (req.user.id !== id) return res.status(403).send("Forbiden").end();
 
   const data = read("users");
-  if (!data[id]) return res.status(404).end();
+  if (!data[id]) return res.status(404).send("User not found").end();
 
   delete data[id];
 
   write("users", data);
-  res.status(200).end();
+  res.status(200).send("User deleted").end();
 }; // TO DO
 
 exports.ban = (req, res) => {};

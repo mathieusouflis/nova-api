@@ -8,6 +8,7 @@ const {
 const { getPostById } = require("./prisma/post.prisma.controller");
 
 exports.liked_posts = async (req, res) => {
+  console.log("LIked post");
   const { user_id } = req.params;
   if (req.user.id !== user_id) return res.status(403).end();
 
@@ -19,10 +20,12 @@ exports.liked_posts = async (req, res) => {
 };
 
 exports.liking_users = async (req, res) => {
+  console.log("Liking USERS");
   const { post_id } = req.params;
   const post = await getPostById(post_id);
   if (!post) return res.status(404).send("Post not found.").end();
-  if (post.author_id !== req.user.id) return res.status(403).end();
+  if (post.author_id !== req.user.id)
+    return res.status(403).send("Forbiden").end();
 
   const likes = await likingUsers(post_id);
 
@@ -32,22 +35,27 @@ exports.liking_users = async (req, res) => {
 };
 
 exports.is_liking_post = async (req, res) => {
+  console.log("Is Liking");
   const { user_id } = req.params;
   const { post_id } = req.params;
-  if (user_id !== req.user.id) return res.status(403).end();
+  console.log(user_id, req.user.id);
+  if (user_id !== req.user.id) return res.status(403).send("Forbiden").end();
   if (!(await getPostById(post_id)))
     return res.status(404).send("Post not found.").end();
 
   if (await likeExist(user_id, post_id)) {
-    return res.status(200).end();
+    return res.status(200).send("Liking").end();
   } else {
-    return res.status(404).end();
+    return res.status(404).send("Not liking").end();
   }
 };
 
 exports.like = async (req, res) => {
+  console.log("LIke");
   const { user_id } = req.params;
   const { post_id } = req.body;
+  console.log(user_id);
+  console.log(req.user.id);
   if (req.user.id !== user_id) return res.status(403).end();
 
   if ((await getPostById(post_id)) === true)
@@ -60,10 +68,13 @@ exports.like = async (req, res) => {
 };
 
 exports.unlike = async (req, res) => {
+  console.log("Unlike");
   const { user_id } = req.params;
   const { post_id } = req.params;
 
-  if (user_id !== req.user.id) return res.send(403);
+  console.log(user_id);
+  console.log(req.user.id);
+  if (user_id !== req.user.id) return res.status(403).send("Forbiden");
 
   if (!(await getPostById(post_id)))
     return res.status(404).send("Post not found.").end();

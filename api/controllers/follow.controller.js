@@ -56,7 +56,7 @@ exports.follow = (req, res) => {
   });
 
   write("followers", follow_data);
-  res.status(200).end();
+  res.status(200).send("User followed").end();
 };
 
 exports.unfollow = (req, res) => {
@@ -64,10 +64,11 @@ exports.unfollow = (req, res) => {
   const user_id = baseUrl[baseUrl.length - 1];
   const { target_user_id } = req.params;
 
-  if (user_id !== req.user.id) return res.send(403);
+  if (user_id !== req.user.id) return res.status(403).send("Forbiden");
 
   const users_data = read("users");
-  if (!users_data[target_user_id]) return res.status(404).end();
+  if (!users_data[target_user_id])
+    return res.status(404).send("User not found").end();
 
   const data = read("followers");
 
@@ -79,9 +80,9 @@ exports.unfollow = (req, res) => {
       new_data.push(...data.slice(i + 1, data.length));
       write("followers", new_data);
 
-      return res.status(200).end();
+      return res.status(200).send("User unfollowed").end();
     }
   }
 
-  res.status(404).end();
+  res.status(404).send("Follow not found").end();
 };
