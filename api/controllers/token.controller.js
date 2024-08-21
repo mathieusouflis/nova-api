@@ -12,7 +12,7 @@ exports.generate_token = (data, type) => {
     throw new Error("JWT secret not configured");
   }
 
-  const expiresIn = type === "access" ? "1m" : "100y";
+  const expiresIn = type === "access" ? "1h" : "100y";
 
   return jwt.sign(data, secret, { expiresIn });
 };
