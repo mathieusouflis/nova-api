@@ -3,7 +3,7 @@ const bodyparser = require("body-parser");
 const cookieparser = require("cookie-parser");
 const cors = require("cors");
 const helmet = require("helmet");
-
+require("dotenv").config();
 //JWT TEST
 require("dotenv").config();
 
@@ -16,7 +16,7 @@ app.use(helmet());
 app.use(bodyparser.json());
 
 const corsOptions = {
-  origin: "*",
+  origin: process.env.FRONTEND_ORIGIN,
   methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
   allowedHeaders: "Content-Type, Authorization",
   credentials: true,
