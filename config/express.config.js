@@ -11,19 +11,21 @@ const routes = require("../api/routes/v1/index");
 const { path } = require("../api/middleware/pathUsed");
 
 const app = express();
-app.use(cookieparser());
-app.use(helmet());
-app.use(bodyparser.json());
 
+console.log(process.env.FRONTEND_ORIGIN);
 const corsOptions = {
   origin: process.env.FRONTEND_ORIGIN,
-  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-  allowedHeaders: "Content-Type, Authorization",
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true,
+  optionsSuccessStatus: 200,
 };
 
 // app.use(cors(corsOptions));
 app.use(cors(corsOptions));
+app.use(cookieparser());
+app.use(helmet());
+app.use(bodyparser.json());
 app.options("*", cors(corsOptions));
 app.use("/api", path, routes);
 
