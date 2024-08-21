@@ -34,7 +34,7 @@ exports.login = async (req, res) => {
 
     res.cookie("refresh_token", refresh_token, {
       httpOnly: true,
-      secure: false,
+      secure: true,
       sameSite: "Strict",
       maxAge: 100 * 365 * 24 * 60 * 60 * 1000, // Durée de vie de 100 ans
     });
