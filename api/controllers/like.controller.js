@@ -8,81 +8,126 @@ const {
 const { getPostById } = require("./prisma/post.prisma.controller");
 
 exports.liked_posts = async (req, res) => {
-  console.log("LIked post");
-  const { user_id } = req.params;
-  if (req.user.id !== user_id) return res.status(403).end();
+  try {
+    console.log("Liked posts");
 
-  const likes = await likedPost(user_id);
+    const { user_id } = req.params;
+    if (req.user.id !== user_id) {
+      return res.status(403).send("Forbidden");
+    }
 
-  res.json({
-    likes: likes.map((like) => like.post_id),
-  });
+    const likes = await likedPost(user_id);
+    const postIds = likes.map((like) => like.post_id);
+
+    return res.status(200).json({ likes: postIds });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send("An error occurred while fetching liked posts");
+  }
 };
 
 exports.liking_users = async (req, res) => {
-  console.log("Liking USERS");
-  const { post_id } = req.params;
-  const post = await getPostById(post_id);
-  if (!post) return res.status(404).send("Post not found.").end();
-  if (post.author_id !== req.user.id)
-    return res.status(403).send("Forbiden").end();
+  try {
+    console.log("Liking users");
 
-  const likes = await likingUsers(post_id);
+    const { post_id } = req.params;
+    const post = await getPostById(post_id);
+    if (!post) {
+      return res.status(404).send("Post not found.");
+    }
+    if (post.author_id !== req.user.id) {
+      return res.status(403).send("Forbidden");
+    }
 
-  res.json({
-    likes: likes.map((like) => like.user_id),
-  });
+    const likes = await likingUsers(post_id);
+    const userIds = likes.map((like) => like.user_id);
+
+    return res.status(200).json({ likes: userIds });
+  } catch (error) {
+    console.error(error);
+    return res
+      .status(500)
+      .send("An error occurred while fetching liking users");
+  }
 };
 
 exports.is_liking_post = async (req, res) => {
-  console.log("Is Liking");
-  const { user_id } = req.params;
-  const { post_id } = req.params;
-  console.log(user_id, req.user.id);
-  if (user_id !== req.user.id) return res.status(403).send("Forbiden").end();
-  if (!(await getPostById(post_id)))
-    return res.status(404).send("Post not found.").end();
+  try {
+    console.log("Is Liking");
 
-  if (await likeExist(user_id, post_id)) {
-    return res.status(200).send("Liking").end();
-  } else {
-    return res.status(404).send("Not liking").end();
+    const { user_id, post_id } = req.params;
+    if (user_id !== req.user.id) {
+      return res.status(403).send("Forbidden");
+    }
+    if (!(await getPostById(post_id))) {
+      return res.status(404).send("Post not found.");
+    }
+
+    const isLiking = await likeExist(user_id, post_id);
+    if (isLiking) {
+      return res.status(200).send("Liking");
+    } else {
+      return res.status(404).send("Not liking");
+    }
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send("An error occurred while checking like status");
   }
 };
 
 exports.like = async (req, res) => {
-  console.log("LIke");
-  const { user_id } = req.params;
-  const { post_id } = req.body;
-  console.log(user_id);
-  console.log(req.user.id);
-  if (req.user.id !== user_id) return res.status(403).end();
+  try {
+    console.log("Like");
 
-  if ((await getPostById(post_id)) === true)
-    return res.status(404).send("Post not found.").end();
+    const { user_id } = req.params;
+    const { post_id } = req.body;
 
-  if (await likeExist(user_id, post_id)) return res.status(402);
+    if (req.user.id !== user_id) {
+      return res.status(403).send("Forbidden");
+    }
 
-  await likePost(user_id, post_id);
-  res.status(200).send("Post Liked.").end();
+    const post = await getPostById(post_id);
+    if (!post) {
+      return res.status(404).send("Post not found.");
+    }
+
+    const isLiking = await likeExist(user_id, post_id);
+    if (isLiking) {
+      return res.status(409).send("Already liked this post");
+    }
+
+    await likePost(user_id, post_id);
+    return res.status(201).send("Post liked.");
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send("An error occurred while liking the post");
+  }
 };
 
 exports.unlike = async (req, res) => {
-  console.log("Unlike");
-  const { user_id } = req.params;
-  const { post_id } = req.params;
+  try {
+    console.log("Unlike");
 
-  console.log(user_id);
-  console.log(req.user.id);
-  if (user_id !== req.user.id) return res.status(403).send("Forbiden");
+    const { user_id, post_id } = req.params;
 
-  if (!(await getPostById(post_id)))
-    return res.status(404).send("Post not found.").end();
+    if (user_id !== req.user.id) {
+      return res.status(403).send("Forbidden");
+    }
 
-  if ((await likeExist(user_id, post_id)) === false)
-    return res.status(404).send("Like Not found.").end();
+    const post = await getPostById(post_id);
+    if (!post) {
+      return res.status(404).send("Post not found.");
+    }
 
-  await unlikePost(user_id, post_id);
+    const isLiking = await likeExist(user_id, post_id);
+    if (!isLiking) {
+      return res.status(404).send("Like not found.");
+    }
 
-  res.status(200).send("Post unliked.").end();
+    await unlikePost(user_id, post_id);
+    return res.status(200).send("Post unliked.");
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send("An error occurred while unliking the post");
+  }
 };

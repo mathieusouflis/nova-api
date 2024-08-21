@@ -6,88 +6,118 @@ const {
 } = require("./prisma/post.prisma.controller");
 
 exports.get_single_post = async (req, res) => {
-  const { id } = req.params;
-  if (isNaN(id)) return res.status(400).end();
+  try {
+    const { id } = req.params;
+    if (isNaN(id)) return res.status(400).send("Invalid post ID");
 
-  const post = await getPostById(id);
+    const post = await getPostById(id);
 
-  if (!post) return res.status(403).send("Post not found");
+    if (!post) return res.status(404).send("Post not found");
 
-  res.status(200).json(post);
+    return res.status(200).json(post);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send("An error occurred while fetching the post");
+  }
 };
 
-exports.get_many_posts = (req, res) => {
-  let { ids } = req.query;
-  if (!ids) return res.status(403).send("Ids's not defined.");
-  ids = ids.split(",");
+exports.get_many_posts = async (req, res) => {
+  try {
+    let { ids } = req.query;
+    if (!ids) return res.status(400).send("IDs are not defined");
 
-  let posts = [];
-  let not_founds = [];
+    ids = ids.split(",");
+    const posts = [];
+    const notFoundIds = [];
 
-  ids.forEach((id) => {
-    const post = getPostById(id);
-    if (post) {
-      posts.push(post);
-    } else {
-      not_founds.push(id);
+    for (const id of ids) {
+      const post = await getPostById(id);
+      if (post) {
+        posts.push(post);
+      } else {
+        notFoundIds.push(id);
+      }
     }
-  });
 
-  posts.length > 0
-    ? res.status(200).json({
+    if (posts.length > 0) {
+      return res.status(200).json({
         posts,
-        not_founds,
-      })
-    : res.status(402).send("Posts not found");
+        not_found: notFoundIds,
+      });
+    } else {
+      return res.status(404).send("No posts found");
+    }
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send("An error occurred while fetching posts");
+  }
 };
 
 exports.create = async (req, res) => {
-  const { text, conversation } = req.body;
-  const user = req.user;
+  try {
+    const { text, conversation } = req.body;
+    const user = req.user;
 
-  if (!text) return res.status(400).end();
+    if (!text) return res.status(400).send("Text is required");
 
-  const post = await createPost(user.id, text, conversation);
+    const post = await createPost(user.id, text, conversation);
 
-  res.json(post).status(201).end();
+    return res.status(201).json(post);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send("An error occurred while creating the post");
+  }
 };
 
-exports.delete = (req, res) => {
-  const { id } = req.params;
-  const data = read("posts");
-  const post = data[id];
+exports.delete = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const data = read("posts");
+    const post = data[id];
 
-  if (!post) return res.status(404).end();
-  if (post.author_id !== req.user.id) return res.status(401).end();
+    if (!post) return res.status(404).send("Post not found");
+    if (post.author_id !== req.user.id)
+      return res.status(403).send("Forbidden");
 
-  delete data[id];
+    delete data[id];
+    write("posts", data);
 
-  write("posts", data);
-
-  res.status(200).end();
-}; // TO DO
+    return res.status(200).send("Post deleted successfully");
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send("An error occurred while deleting the post");
+  }
+};
+// TO DO
 
 exports.query = async (req, res) => {
-  const {
-    max_results,
-    start_time,
-    end_time,
-    since_id,
-    until_id,
-    user_id,
-    conversation_id,
-  } = req.query;
+  try {
+    const {
+      max_results,
+      start_time,
+      end_time,
+      since_id,
+      until_id,
+      user_id,
+      conversation_id,
+    } = req.query;
 
-  const returned_post_number =
-    max_results && max_results !== "0" ? parseInt(max_results) : 100;
-  const returned_posts = await queryPosts(
-    returned_post_number,
-    start_time,
-    end_time,
-    since_id,
-    until_id,
-    user_id,
-    conversation_id,
-  );
-  return res.json({ posts: returned_posts }).status(200);
+    const returned_post_number =
+      max_results && !isNaN(max_results) ? parseInt(max_results) : 100;
+
+    const returned_posts = await queryPosts(
+      returned_post_number,
+      start_time,
+      end_time,
+      since_id,
+      until_id,
+      user_id,
+      conversation_id,
+    );
+
+    return res.status(200).json({ posts: returned_posts });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send("An error occurred while querying posts");
+  }
 };

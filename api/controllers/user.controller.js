@@ -5,83 +5,112 @@ const {
 } = require("./prisma/users.prisma.controller");
 
 exports.user_by_id = async (req, res) => {
-  const { id } = req.params;
-  const user = await findUserById(id);
+  try {
+    const { id } = req.params;
+    const user = await findUserById(id);
 
-  if (!user) return res.status(403).send("User not found");
+    if (!user) return res.status(404).send("User not found");
 
-  res.status(200).json(user);
+    return res.status(200).json(user);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send("An error occurred while fetching the user");
+  }
 };
 
-exports.user_by_ids = (req, res) => {
-  let { ids } = req.query;
-  if (!ids) return res.status(404).send("Ids's not defined");
-  ids = ids.split(",");
+exports.user_by_ids = async (req, res) => {
+  try {
+    let { ids } = req.query;
+    if (!ids) return res.status(400).send("IDs are not defined");
 
-  let users = [];
-  let not_founds = [];
+    ids = ids.split(",");
+    const users = [];
+    const notFoundIds = [];
 
-  ids.forEach(async (id) => {
-    const user = await findUserById(id);
-    if (user) {
-      users.push(user);
-    } else {
-      not_founds.push(id);
-    }
-  });
+    // Utilisez Promise.all pour gérer les appels asynchrones en parallèle
+    const userPromises = ids.map(async (id) => {
+      const user = await findUserById(id);
+      if (user) {
+        users.push(user);
+      } else {
+        notFoundIds.push(id);
+      }
+    });
 
-  users.length > 0
-    ? res.status(200).json({
-        users,
-        not_founds,
-      })
-    : res.status(402).send("Users not found");
+    await Promise.all(userPromises);
+
+    return res.status(200).json({
+      users,
+      not_found: notFoundIds,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send("An error occurred while fetching users");
+  }
 };
 
 exports.user_by_username = async (req, res) => {
-  const { username } = req.params;
-  const user = await findUserByUsername(username);
-  if (!user) return res.status(404).send("User not found.");
-
-  return res.status(200).json(user);
-};
-
-exports.user_by_usernames = (req, res) => {
-  let { usernames } = req.query;
-  if (!usernames) return res.status(404).send("Usernames's not defined.");
-  usernames = usernames.split(",");
-
-  let users = [];
-  let not_founds = [];
-
-  usernames.forEach(async (username) => {
+  try {
+    const { username } = req.params;
     const user = await findUserByUsername(username);
-    if (!user) {
-      not_founds.push(username);
-    } else {
-      users.push(user);
-    }
-  });
+    if (!user) return res.status(404).send("User not found");
 
-  users.length > 0
-    ? res.status(200).json({
-        users,
-        not_founds,
-      })
-    : res.status(402).send("Users not found");
+    return res.status(200).json(user);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send("An error occurred while fetching the user");
+  }
 };
 
-exports.delete = (req, res) => {
-  const { id } = req.params;
-  if (req.user.id !== id) return res.status(403).send("Forbiden").end();
+exports.user_by_usernames = async (req, res) => {
+  try {
+    let { usernames } = req.query;
+    if (!usernames) return res.status(400).send("Usernames are not defined");
 
-  const data = read("users");
-  if (!data[id]) return res.status(404).send("User not found").end();
+    usernames = usernames.split(",");
+    const users = [];
+    const notFoundUsernames = [];
 
-  delete data[id];
+    // Utilisez Promise.all pour gérer les appels asynchrones en parallèle
+    const userPromises = usernames.map(async (username) => {
+      const user = await findUserByUsername(username);
+      if (user) {
+        users.push(user);
+      } else {
+        notFoundUsernames.push(username);
+      }
+    });
 
-  write("users", data);
-  res.status(200).send("User deleted").end();
-}; // TO DO
+    await Promise.all(userPromises);
 
-exports.ban = (req, res) => {};
+    return res.status(200).json({
+      users,
+      not_found: notFoundUsernames,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send("An error occurred while fetching users");
+  }
+};
+
+exports.delete = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (req.user.id !== id) return res.status(403).send("Forbidden");
+
+    const data = read("users");
+    if (!data[id]) return res.status(404).send("User not found");
+
+    delete data[id];
+    write("users", data);
+
+    return res.status(200).send("User deleted");
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send("An error occurred while deleting the user");
+  }
+};
+// TO DO
+
+exports.ban = async (req, res) => {}; // TO DO

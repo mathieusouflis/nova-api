@@ -1,88 +1,109 @@
 const { read, write } = require("./database.controller");
 
 exports.get_followers = (req, res) => {
-  const baseUrl = req.baseUrl.split("/");
-  const user_id = baseUrl[baseUrl.length - 1];
+  try {
+    const baseUrl = req.baseUrl.split("/");
+    const user_id = baseUrl[baseUrl.length - 1];
 
-  const data = read("followers");
-  const following_list = [];
-  data.forEach((follow) => {
-    if (follow["following"] === user_id) {
-      following_list.push(follow["followers"]);
-    }
-  });
+    const data = read("followers");
+    const followers_list = data
+      .filter((follow) => follow["following"] === user_id)
+      .map((follow) => follow["follower"]);
 
-  res.status(200).json(following_list);
+    return res.status(200).json(followers_list);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send("An error occurred while fetching followers");
+  }
 };
 
 exports.get_following = (req, res) => {
-  const baseUrl = req.baseUrl.split("/");
-  const user_id = baseUrl[baseUrl.length - 1];
+  try {
+    const baseUrl = req.baseUrl.split("/");
+    const user_id = baseUrl[baseUrl.length - 1];
 
-  const data = read("followers");
-  const following_list = [];
-  data.forEach((follow) => {
-    if (follow["follower"] === user_id) {
-      following_list.push(follow["following"]);
-    }
-  });
+    const data = read("followers");
+    const following_list = data
+      .filter((follow) => follow["follower"] === user_id)
+      .map((follow) => follow["following"]);
 
-  res.status(200).json(following_list);
+    return res.status(200).json(following_list);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send("An error occurred while fetching following");
+  }
 };
 
 exports.follow = (req, res) => {
-  const baseUrl = req.baseUrl.split("/");
-  const user_id = baseUrl[baseUrl.length - 1];
-  const { targeted_id } = req.body;
+  try {
+    const baseUrl = req.baseUrl.split("/");
+    const user_id = baseUrl[baseUrl.length - 1];
+    const { targeted_id } = req.body;
 
-  if (user_id !== req.user.id || user_id === targeted_id) return res.send(403);
-
-  const users_data = read("users");
-  if (!users_data[targeted_id]) return res.status(404).end();
-
-  const follow_data = read("followers");
-
-  for (follow in follow_data) {
-    if (
-      follow_data[follow]["follower"] === user_id &&
-      follow_data[follow]["following"] === targeted_id
-    ) {
-      return res.status(402).send("You'r allready following this user");
+    if (user_id !== req.user.id || user_id === targeted_id) {
+      return res.status(403).send("Forbidden");
     }
-  }
-  follow_data.push({
-    follower: user_id,
-    following: targeted_id,
-  });
 
-  write("followers", follow_data);
-  res.status(200).send("User followed").end();
+    const users_data = read("users");
+    if (!users_data[targeted_id]) {
+      return res.status(404).send("User not found");
+    }
+
+    const follow_data = read("followers");
+
+    const alreadyFollowing = follow_data.some(
+      (follow) =>
+        follow["follower"] === user_id && follow["following"] === targeted_id,
+    );
+
+    if (alreadyFollowing) {
+      return res.status(409).send("You are already following this user");
+    }
+
+    follow_data.push({
+      follower: user_id,
+      following: targeted_id,
+    });
+
+    write("followers", follow_data);
+    return res.status(201).send("User followed");
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send("An error occurred while following the user");
+  }
 };
 
 exports.unfollow = (req, res) => {
-  const baseUrl = req.baseUrl.split("/");
-  const user_id = baseUrl[baseUrl.length - 1];
-  const { target_user_id } = req.params;
+  try {
+    const baseUrl = req.baseUrl.split("/");
+    const user_id = baseUrl[baseUrl.length - 1];
+    const { target_user_id } = req.params;
 
-  if (user_id !== req.user.id) return res.status(403).send("Forbiden");
-
-  const users_data = read("users");
-  if (!users_data[target_user_id])
-    return res.status(404).send("User not found").end();
-
-  const data = read("followers");
-
-  for (let i = 0; i < data.length; i++) {
-    const follow = data[i];
-    if (follow.follower === user_id && follow.following === target_user_id) {
-      const new_data = data.slice(0, i);
-
-      new_data.push(...data.slice(i + 1, data.length));
-      write("followers", new_data);
-
-      return res.status(200).send("User unfollowed").end();
+    if (user_id !== req.user.id) {
+      return res.status(403).send("Forbidden");
     }
-  }
 
-  res.status(404).send("Follow not found").end();
+    const users_data = read("users");
+    if (!users_data[target_user_id]) {
+      return res.status(404).send("User not found");
+    }
+
+    const follow_data = read("followers");
+    const followIndex = follow_data.findIndex(
+      (follow) =>
+        follow.follower === user_id && follow.following === target_user_id,
+    );
+
+    if (followIndex === -1) {
+      return res.status(404).send("Follow not found");
+    }
+
+    follow_data.splice(followIndex, 1);
+    write("followers", follow_data);
+
+    return res.status(200).send("User unfollowed");
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send("An error occurred while unfollowing the user");
+  }
 };

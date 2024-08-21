@@ -1,77 +1,96 @@
 const { read, write } = require("./database.controller");
 
 exports.lookup = (req, res) => {
-  const baseUrl = req.baseUrl.split("/");
-  const user_id = baseUrl[baseUrl.length - 2];
+  try {
+    const baseUrl = req.baseUrl.split("/");
+    const user_id = baseUrl[baseUrl.length - 2];
 
-  if (user_id !== req.user.id) return res.send(403);
-
-  const data = read("blocks");
-  const blocking_list = [];
-  data.forEach((follow) => {
-    if (follow["blocker"] === user_id) {
-      blocking_list.push(follow["blocked"]);
+    if (user_id !== req.user.id) {
+      return res.status(403).send("Forbidden");
     }
-  });
 
-  res.status(200).json(blocking_list);
+    const data = read("blocks");
+    const blocking_list = data
+      .filter((follow) => follow["blocker"] === user_id)
+      .map((follow) => follow["blocked"]);
+
+    return res.status(200).json(blocking_list);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send("An error occurred during lookup");
+  }
 };
 
 exports.block = (req, res) => {
-  const baseUrl = req.baseUrl.split("/");
-  const author_id = baseUrl[baseUrl.length - 2];
-  const { targeted_user_id } = req.body;
+  try {
+    const baseUrl = req.baseUrl.split("/");
+    const author_id = baseUrl[baseUrl.length - 2];
+    const { targeted_user_id } = req.body;
 
-  if (req.user.id !== author_id || req.user.id === targeted_user_id)
-    return res.status(403).end();
-
-  const users_data = read("users");
-  if (!users_data[targeted_user_id])
-    return res.status(404).send("User not found").end();
-
-  const blocks_data = read("blocks");
-
-  for (block in blocks_data) {
-    if (
-      blocks_data[block]["blocker"] === author_id &&
-      blocks_data[block]["blocked"] === targeted_user_id
-    ) {
-      return res.status(402);
+    if (req.user.id !== author_id || req.user.id === targeted_user_id) {
+      return res.status(403).send("Forbidden");
     }
-  }
-  blocks_data.push({
-    blocker: author_id,
-    blocked: targeted_user_id,
-  });
 
-  write("blocks", blocks_data);
-  res.status(200).send("User blocked").end();
+    const users_data = read("users");
+    if (!users_data[targeted_user_id]) {
+      return res.status(404).send("User not found");
+    }
+
+    const blocks_data = read("blocks");
+
+    const alreadyBlocked = blocks_data.some(
+      (block) =>
+        block["blocker"] === author_id && block["blocked"] === targeted_user_id,
+    );
+
+    if (alreadyBlocked) {
+      return res.status(409).send("User is already blocked");
+    }
+
+    blocks_data.push({
+      blocker: author_id,
+      blocked: targeted_user_id,
+    });
+
+    write("blocks", blocks_data);
+    return res.status(201).send("User blocked");
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send("An error occurred during blocking");
+  }
 };
 
 exports.unblock = (req, res) => {
-  const baseUrl = req.baseUrl.split("/");
-  const author_id = baseUrl[baseUrl.length - 2];
-  const { targeted_user_id } = req.params;
+  try {
+    const baseUrl = req.baseUrl.split("/");
+    const author_id = baseUrl[baseUrl.length - 2];
+    const { targeted_user_id } = req.params;
 
-  if (author_id !== req.user.id) return res.status(403).send("Forbiden").end();
-
-  const users_data = read("users");
-  if (!users_data[targeted_user_id])
-    return res.status(404).send("User not found").end();
-
-  const blocks_data = read("blocks");
-
-  for (let i = 0; i < blocks_data.length; i++) {
-    const block = blocks_data[i];
-    if (block.blocker === author_id && block.blocked === targeted_user_id) {
-      const new_data = blocks_data.slice(0, i);
-
-      new_data.push(...blocks_data.slice(i + 1, blocks_data.length));
-      write("blocks", new_data);
-
-      return res.status(200).send("User unblocked").end();
+    if (author_id !== req.user.id) {
+      return res.status(403).send("Forbidden");
     }
-  }
 
-  res.status(404).send("Block not found").end();
+    const users_data = read("users");
+    if (!users_data[targeted_user_id]) {
+      return res.status(404).send("User not found");
+    }
+
+    const blocks_data = read("blocks");
+    const blockIndex = blocks_data.findIndex(
+      (block) =>
+        block.blocker === author_id && block.blocked === targeted_user_id,
+    );
+
+    if (blockIndex === -1) {
+      return res.status(404).send("Block not found");
+    }
+
+    blocks_data.splice(blockIndex, 1);
+    write("blocks", blocks_data);
+
+    return res.status(200).send("User unblocked");
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send("An error occurred during unblocking");
+  }
 };
