@@ -5,7 +5,6 @@ const cors = require("cors");
 const helmet = require("helmet");
 require("dotenv").config();
 //JWT TEST
-require("dotenv").config();
 
 const routes = require("../api/routes/v1/index");
 const { path } = require("../api/middleware/pathUsed");
@@ -15,7 +14,6 @@ const prisma = new PrismaClient();
 
 const app = express();
 
-console.log(process.env.FRONTEND_ORIGIN);
 const corsOptions = {
   origin: process.env.FRONTEND_ORIGIN,
   methods: ["GET", "POST", "PUT", "DELETE"],

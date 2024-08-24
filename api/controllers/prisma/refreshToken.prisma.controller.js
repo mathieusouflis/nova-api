@@ -40,5 +40,6 @@ exports.deleteRefreshToken = async (prisma, token) => {
       refresh_token: token,
     },
   });
+
   return refresh_token;
 };
