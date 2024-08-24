@@ -51,6 +51,11 @@ model posts {
   likes         likes[]
 }
 
+model refresh_tokens {
+  id            String @id @db.VarChar(255)
+  refresh_token String @unique(map: "refresh_tokens_pk_2") @db.VarChar(512)
+}
+
 model users {
   id                                  String      @id @db.VarChar(255)
   role                                String      @db.VarChar(255)
@@ -68,9 +73,4 @@ model users {
   followers_followers_followedTousers followers[] @relation("followers_followedTousers")
   followers_followers_followerTousers followers[] @relation("followers_followerTousers")
   likes                               likes[]
-}
-
-model refresh_tokens {
-  id            String @id @db.VarChar(255)
-  refresh_token String @unique(map: "refresh_tokens_pk_2") @db.VarChar(512)
 }
