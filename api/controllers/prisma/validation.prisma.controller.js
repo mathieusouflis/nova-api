@@ -13,7 +13,6 @@ exports.isUsernameTaken = async (prisma, username) => {
   return user ? true : false;
 };
 
-exports.isEmailTaken = async (email) => {
   const user = await prisma.users.findUnique({
     where: { email },
     select: { email: true },
