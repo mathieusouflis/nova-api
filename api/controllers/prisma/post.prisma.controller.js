@@ -30,7 +30,31 @@ exports.getPostById = async (prisma, id) => {
       },
     },
   });
-  return post;
+
+  const authors = await prisma.users.findMany({
+    where: {
+      id: post.author_id,
+    },
+    select: {
+      id: true,
+      username: true,
+      description: true,
+    },
+  });
+
+  const author = authors.find((author) => author.id === post.author_id);
+  const numComment = await prisma.posts.count({
+    where: {
+      is_comment: true,
+      conversation: post.id,
+    },
+  });
+
+  return {
+    ...post,
+    author,
+    numComment,
+  };
 };
 
 exports.queryPosts = async (
@@ -65,5 +89,44 @@ exports.queryPosts = async (
     orderBy: {
       creation_date: "desc",
     },
+    include: {
+      _count: {
+        select: {
+          likes: true,
+        },
+      },
+    },
   });
+
+  const authors = await prisma.users.findMany({
+    where: {
+      id: {
+        in: posts.map((post) => post.author_id),
+      },
+    },
+    select: {
+      id: true,
+      username: true,
+      description: true,
+    },
+  });
+
+  const postsWithAuthorAndNumComment = await Promise.all(
+    posts.map(async (post) => {
+      const author = authors.find((author) => author.id === post.author_id);
+      const numComment = await prisma.posts.count({
+        where: {
+          is_comment: true,
+          conversation: post.id,
+        },
+      });
+      return {
+        ...post,
+        author,
+        numComment,
+      };
+    }),
+  );
+
+  return postsWithAuthorAndNumComment;
 };
