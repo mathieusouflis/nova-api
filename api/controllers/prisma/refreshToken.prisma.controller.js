@@ -17,7 +17,7 @@ exports.isRefreshTokenExist = async (prisma, token) => {
 };
 
 exports.createRefreshToken = async (prisma, token) => {
-  if (await this.isRefreshTokenExist(token)) return token;
+  if (await this.isRefreshTokenExist(prisma, token)) return token;
 
   try {
     const refresh_token = await prisma.refresh_tokens.create({
