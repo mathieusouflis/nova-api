@@ -59,3 +59,13 @@ exports.unlikePost = async (prisma, user_id, post_id) => {
 
   return like;
 };
+
+exports.getLikesCount = async (prisma, postId) => {
+  const count = await prisma.likes.count({
+    where: {
+      post_id: postId,
+    },
+  });
+
+  return count;
+};
