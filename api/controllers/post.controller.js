@@ -100,8 +100,8 @@ exports.query = async (req, res) => {
       until_id,
       user_id,
       conversation_id,
+      is_comment,
     } = req.query;
-
     const returned_post_number =
       max_results && !isNaN(max_results) ? parseInt(max_results) : 100;
 
@@ -114,6 +114,7 @@ exports.query = async (req, res) => {
       until_id,
       user_id,
       conversation_id,
+      is_comment,
     );
 
     return res.status(200).json({ posts: returned_posts });

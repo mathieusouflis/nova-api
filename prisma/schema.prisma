@@ -46,6 +46,7 @@ model posts {
   author_id     String  @db.VarChar(255)
   text          String  @db.Text
   images        String? @db.VarChar(255)
+  is_comment    Boolean @default(false)
   creation_date String  @db.VarChar(255)
   likes         likes[]
 }

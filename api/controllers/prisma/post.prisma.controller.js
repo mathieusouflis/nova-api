@@ -8,6 +8,7 @@ exports.createPost = async (prisma, author_id, text, conversation) => {
       conversation: conversation ? conversation.toString() : id.toString(),
       author_id,
       text,
+      is_comment: conversation ? true : false,
       creation_date: Date.now().toString(),
     },
   });
@@ -34,12 +35,19 @@ exports.queryPosts = async (
   until_id,
   user_id,
   conversation_id,
+  is_comment,
 ) => {
   const posts = await prisma.posts.findMany({
     where: {
       AND: [
         user_id ? { author_id: user_id } : {},
         conversation_id ? { conversation: conversation_id } : {},
+        is_comment !== undefined
+          ? {
+              is_comment:
+                is_comment === "true" || is_comment === "1" ? true : false,
+            }
+          : {},
         start_time ? { creation_date: { gte: new Date(start_time) } } : {},
         end_time ? { creation_date: { lte: new Date(end_time) } } : {},
         since_id ? { id: { gt: since_id } } : {},
