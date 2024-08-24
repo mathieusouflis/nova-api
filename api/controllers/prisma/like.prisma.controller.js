@@ -1,7 +1,5 @@
-const { PrismaClient } = require("@prisma/client");
 const { id_generator } = require("../../../utils/functions/id");
-exports.likedPost = async (user_id) => {
-  const prisma = new PrismaClient();
+exports.likedPost = async (prisma, user_id) => {
   return await prisma.likes.findMany({
     where: {
       user_id, // Ensure user_id is an integer
@@ -12,8 +10,7 @@ exports.likedPost = async (user_id) => {
   });
 };
 
-exports.likingUsers = async (post_id) => {
-  const prisma = new PrismaClient();
+exports.likingUsers = async (prisma, post_id) => {
   const like = await prisma.likes.findMany({
     where: {
       post_id,
@@ -23,12 +20,10 @@ exports.likingUsers = async (post_id) => {
     },
   });
 
-  await prisma.$disconnect();
   return like;
 };
 
-exports.likeExist = async (user_id, post_id) => {
-  const prisma = new PrismaClient();
+exports.likeExist = async (prisma, user_id, post_id) => {
   const like = (await prisma.likes.findFirst({
     where: {
       post_id,
@@ -38,12 +33,10 @@ exports.likeExist = async (user_id, post_id) => {
     ? true
     : false;
 
-  await prisma.$disconnect();
   return like;
 };
 
-exports.likePost = async (user_id, post_id) => {
-  const prisma = new PrismaClient();
+exports.likePost = async (prisma, user_id, post_id) => {
   const id = await id_generator();
   const like = await prisma.likes.create({
     data: {
@@ -52,12 +45,11 @@ exports.likePost = async (user_id, post_id) => {
       post_id,
     },
   });
-  await prisma.$disconnect();
+
   return like;
 };
 
-exports.unlikePost = async (user_id, post_id) => {
-  const prisma = new PrismaClient();
+exports.unlikePost = async (prisma, user_id, post_id) => {
   const like = await prisma.likes.deleteMany({
     where: {
       user_id,
@@ -65,6 +57,5 @@ exports.unlikePost = async (user_id, post_id) => {
     },
   });
 
-  await prisma.$disconnect();
   return like;
 };

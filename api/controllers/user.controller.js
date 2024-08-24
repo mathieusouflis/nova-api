@@ -7,7 +7,7 @@ const {
 exports.user_by_id = async (req, res) => {
   try {
     const { id } = req.params;
-    const user = await findUserById(id);
+    const user = await findUserById(req.prisma, id);
 
     if (!user) return res.status(404).send("User not found");
 
@@ -27,9 +27,8 @@ exports.user_by_ids = async (req, res) => {
     const users = [];
     const notFoundIds = [];
 
-    // Utilisez Promise.all pour gérer les appels asynchrones en parallèle
     const userPromises = ids.map(async (id) => {
-      const user = await findUserById(id);
+      const user = await findUserById(req.prisma, id);
       if (user) {
         users.push(user);
       } else {
@@ -52,7 +51,7 @@ exports.user_by_ids = async (req, res) => {
 exports.user_by_username = async (req, res) => {
   try {
     const { username } = req.params;
-    const user = await findUserByUsername(username);
+    const user = await findUserByUsername(req.prisma, username);
     if (!user) return res.status(404).send("User not found");
 
     return res.status(200).json(user);
@@ -71,9 +70,8 @@ exports.user_by_usernames = async (req, res) => {
     const users = [];
     const notFoundUsernames = [];
 
-    // Utilisez Promise.all pour gérer les appels asynchrones en parallèle
     const userPromises = usernames.map(async (username) => {
-      const user = await findUserByUsername(username);
+      const user = await findUserByUsername(req.prisma, username);
       if (user) {
         users.push(user);
       } else {

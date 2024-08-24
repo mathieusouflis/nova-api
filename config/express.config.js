@@ -9,6 +9,9 @@ require("dotenv").config();
 
 const routes = require("../api/routes/v1/index");
 const { path } = require("../api/middleware/pathUsed");
+const { PrismaClient } = require("@prisma/client");
+
+const prisma = new PrismaClient();
 
 const app = express();
 
@@ -20,13 +23,20 @@ const corsOptions = {
   credentials: true,
   optionsSuccessStatus: 200,
 };
-
-// app.use(cors(corsOptions));
 app.use(cors(corsOptions));
 app.use(cookieparser());
 app.use(helmet());
 app.use(bodyparser.json());
+app.use((req, res, next) => {
+  req.prisma = prisma;
+  next();
+});
 app.options("*", cors(corsOptions));
 app.use("/api", path, routes);
+
+process.on("SIGINT", async () => {
+  await prisma.$disconnect();
+  process.exit(0);
+});
 
 module.exports = app;

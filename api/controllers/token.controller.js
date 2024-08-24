@@ -25,7 +25,7 @@ exports.refresh_token = async (req, res) => {
       return res.status(401).send("Refresh token is required");
     }
 
-    if (!(await isRefreshTokenExist(refreshToken))) {
+    if (!(await isRefreshTokenExist(req.prisma, refreshToken))) {
       return res.status(401).send("Invalid or expired token");
     }
 

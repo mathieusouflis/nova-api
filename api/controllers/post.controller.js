@@ -10,7 +10,7 @@ exports.get_single_post = async (req, res) => {
     const { id } = req.params;
     if (isNaN(id)) return res.status(400).send("Invalid post ID");
 
-    const post = await getPostById(id);
+    const post = await getPostById(req.prisma, id);
 
     if (!post) return res.status(404).send("Post not found");
 
@@ -31,7 +31,7 @@ exports.get_many_posts = async (req, res) => {
     const notFoundIds = [];
 
     for (const id of ids) {
-      const post = await getPostById(id);
+      const post = await getPostById(req.prisma, id);
       if (post) {
         posts.push(post);
       } else {
@@ -60,7 +60,7 @@ exports.create = async (req, res) => {
 
     if (!text) return res.status(400).send("Text is required");
 
-    const post = await createPost(user.id, text, conversation);
+    const post = await createPost(req.prisma, user.id, text, conversation);
 
     return res.status(201).json(post);
   } catch (error) {
@@ -106,6 +106,7 @@ exports.query = async (req, res) => {
       max_results && !isNaN(max_results) ? parseInt(max_results) : 100;
 
     const returned_posts = await queryPosts(
+      req.prisma,
       returned_post_number,
       start_time,
       end_time,
