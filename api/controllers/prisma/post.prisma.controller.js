@@ -22,6 +22,13 @@ exports.getPostById = async (prisma, id) => {
     where: {
       id,
     },
+    include: {
+      _count: {
+        select: {
+          likes: true,
+        },
+      },
+    },
   });
   return post;
 };
