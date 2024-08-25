@@ -91,7 +91,7 @@ exports.like = async (req, res) => {
       return res.status(404).send("Post not found.");
     }
 
-    const isLiking = await likeExist(user_id, post_id);
+    const isLiking = await likeExist(req.prisma, user_id, post_id);
     if (isLiking) {
       return res.status(409).send("Already liked this post");
     }
@@ -119,7 +119,7 @@ exports.unlike = async (req, res) => {
       return res.status(404).send("Post not found.");
     }
 
-    const isLiking = await likeExist(user_id, post_id);
+    const isLiking = await likeExist(req.prisma, user_id, post_id);
     if (!isLiking) {
       return res.status(404).send("Like not found.");
     }
