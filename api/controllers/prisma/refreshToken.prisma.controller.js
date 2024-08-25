@@ -26,7 +26,6 @@ exports.createRefreshToken = async (prisma, token) => {
         refresh_token: token,
       },
     });
-    console.log(refresh_token);
 
     return refresh_token.refresh_token;
   } catch (err) {

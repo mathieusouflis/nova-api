@@ -20,7 +20,6 @@ exports.generate_token = (data, type) => {
 exports.refresh_token = async (req, res) => {
   try {
     const refreshToken = req.cookies.refresh_token;
-    console.log(refreshToken);
     if (!refreshToken) {
       return res.status(401).send("Refresh token is required");
     }

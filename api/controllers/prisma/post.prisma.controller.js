@@ -17,7 +17,6 @@ exports.createPost = async (prisma, author_id, text, conversation) => {
 };
 
 exports.getPostById = async (prisma, id) => {
-  console.log("coucou");
   const post = await prisma.posts.findUnique({
     where: {
       id,

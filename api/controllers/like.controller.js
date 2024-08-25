@@ -9,8 +9,6 @@ const { getPostById } = require("./prisma/post.prisma.controller");
 
 exports.liked_posts = async (req, res) => {
   try {
-    console.log("Liked posts");
-
     const { user_id } = req.params;
     if (req.user.id !== user_id) {
       return res.status(403).send("Forbidden");
@@ -28,8 +26,6 @@ exports.liked_posts = async (req, res) => {
 
 exports.liking_users = async (req, res) => {
   try {
-    console.log("Liking users");
-
     const { post_id } = req.params;
     const post = await getPostById(req.prisma, post_id);
     if (!post) {
@@ -53,8 +49,6 @@ exports.liking_users = async (req, res) => {
 
 exports.is_liking_post = async (req, res) => {
   try {
-    console.log("Is Liking");
-
     const { user_id, post_id } = req.params;
     if (user_id !== req.user.id) {
       return res.status(403).send("Forbidden");
@@ -77,8 +71,6 @@ exports.is_liking_post = async (req, res) => {
 
 exports.like = async (req, res) => {
   try {
-    console.log("Like");
-
     const { user_id } = req.params;
     const { post_id } = req.body;
 
@@ -106,8 +98,6 @@ exports.like = async (req, res) => {
 
 exports.unlike = async (req, res) => {
   try {
-    console.log("Unlike");
-
     const { user_id, post_id } = req.params;
 
     if (user_id !== req.user.id) {
