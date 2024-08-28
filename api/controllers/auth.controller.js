@@ -37,7 +37,10 @@ exports.login = async (req, res) => {
             httpOnly: true,
             secure: process.env.ENVIRONMENT === "dev" ? false : true,
             sameSite: "Strict",
-            domain: "nova.mathieusouflis.com",
+            domain:
+                process.env.ENVIRONMENT === "dev"
+                    ? ""
+                    : "king-prawn-app-ar34e.ondigitalocean.app",
             maxAge: 100 * 365 * 24 * 60 * 60 * 1000, // Durée de vie de 100 ans
         });
 
