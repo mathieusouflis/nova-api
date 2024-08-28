@@ -38,9 +38,7 @@ exports.login = async (req, res) => {
             secure: process.env.ENVIRONMENT === "dev" ? false : true,
             sameSite: "Strict",
             domain:
-                process.env.ENVIRONMENT === "dev"
-                    ? ""
-                    : "king-prawn-app-ar34e.ondigitalocean.app",
+                process.env.ENVIRONMENT === "dev" ? "" : "mathieusouflis.com",
             maxAge: 100 * 365 * 24 * 60 * 60 * 1000, // Durée de vie de 100 ans
         });
 
