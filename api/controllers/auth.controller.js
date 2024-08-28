@@ -37,7 +37,7 @@ exports.login = async (req, res) => {
       httpOnly: true,
       secure: process.env.ENVIRONMENT === "dev" ? false : true,
       sameSite: "None",
-      maxAge: 100 * 365 * 24 * 60 * 60 * 1000, // Durée de vie de 100 ans
+      maxAge: 100 * 365 * 24 * 60, // Durée de vie de 2 mois
     });
 
     return res.status(200).json({
