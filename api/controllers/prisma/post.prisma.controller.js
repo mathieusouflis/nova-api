@@ -5,7 +5,7 @@ exports.createPost = async (prisma, author_id, text, conversation) => {
   const post = await prisma.posts.create({
     data: {
       id: id.toString(),
-      conversation: conversation ? conversation.toString() : id.toString(),
+      conversation: conversation ? conversation.toString() : null,
       author_id,
       text,
       is_comment: conversation ? true : false,
@@ -16,7 +16,7 @@ exports.createPost = async (prisma, author_id, text, conversation) => {
   return post;
 };
 
-exports.getPostById = async (prisma, id) => {
+exports.getPostById = async (prisma, request_author, id) => {
   const post = await prisma.posts.findUnique({
     where: {
       id,
@@ -25,39 +25,39 @@ exports.getPostById = async (prisma, id) => {
       _count: {
         select: {
           likes: true,
+          comments: true,
+        },
+      },
+      likes: {
+        where: {
+          user_id: request_author.id,
+        },
+      },
+      author: {
+        select: {
+          id: true,
+          username: true,
+          description: true,
+          _count: {
+            select: {
+              users_followed: {
+                where: {
+                  follower: request_author.id,
+                },
+              },
+            },
+          },
         },
       },
     },
   });
 
-  const authors = await prisma.users.findMany({
-    where: {
-      id: post.author_id,
-    },
-    select: {
-      id: true,
-      username: true,
-      description: true,
-    },
-  });
-
-  const author = authors.find((author) => author.id === post.author_id);
-  const numComment = await prisma.posts.count({
-    where: {
-      is_comment: true,
-      conversation: post.id,
-    },
-  });
-
-  return {
-    ...post,
-    author,
-    numComment,
-  };
+  return post;
 };
 
 exports.queryPosts = async (
   prisma,
+  request_author,
   max_results,
   start_time,
   end_time,
@@ -92,40 +92,32 @@ exports.queryPosts = async (
       _count: {
         select: {
           likes: true,
+          comments: true,
         },
       },
-    },
-  });
-
-  const authors = await prisma.users.findMany({
-    where: {
-      id: {
-        in: posts.map((post) => post.author_id),
-      },
-    },
-    select: {
-      id: true,
-      username: true,
-      description: true,
-    },
-  });
-
-  const postsWithAuthorAndNumComment = await Promise.all(
-    posts.map(async (post) => {
-      const author = authors.find((author) => author.id === post.author_id);
-      const numComment = await prisma.posts.count({
+      likes: {
         where: {
-          is_comment: true,
-          conversation: post.id,
+          user_id: request_author.id,
         },
-      });
-      return {
-        ...post,
-        author,
-        numComment,
-      };
-    }),
-  );
+      },
+      author: {
+        select: {
+          id: true,
+          username: true,
+          description: true,
+          _count: {
+            select: {
+              users_followed: {
+                where: {
+                  follower: request_author.id,
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  });
 
-  return postsWithAuthorAndNumComment;
+  return posts;
 };

@@ -10,7 +10,7 @@ exports.get_single_post = async (req, res) => {
     const { id } = req.params;
     if (isNaN(id)) return res.status(400).send("Invalid post ID");
 
-    const post = await getPostById(req.prisma, id);
+    const post = await getPostById(req.prisma, req.user, id);
 
     if (!post) return res.status(404).send("Post not found");
 
@@ -107,6 +107,7 @@ exports.query = async (req, res) => {
 
     const returned_posts = await queryPosts(
       req.prisma,
+      req.user,
       returned_post_number,
       start_time,
       end_time,
