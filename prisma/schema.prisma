@@ -8,47 +8,53 @@ datasource db {
 }
 
 model block {
-  id                         String @id @db.VarChar(255)
-  blocker                    String @db.VarChar(255)
-  blocked                    String @db.VarChar(255)
-  users_block_blockedTousers users  @relation("block_blockedTousers", fields: [blocked], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "block_blocked_foreign")
-  users_block_blockerTousers users  @relation("block_blockerTousers", fields: [blocker], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "block_blocker_foreign")
+  id             String @id @db.VarChar(255)
+  blocker        String @db.VarChar(255)
+  blocked        String @db.VarChar(255)
+  users_blocked  users  @relation("block_blockedTousers", fields: [blocked], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "block_blocked")
+  users_blocking users  @relation("block_blockerTousers", fields: [blocker], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "block_blocker")
 
-  @@index([blocked], map: "block_blocked_foreign")
-  @@index([blocker], map: "block_blocker_foreign")
+  @@index([blocked], map: "block_blocked")
+  @@index([blocker], map: "block_blocker")
 }
 
 model followers {
-  id                              String @id @db.VarChar(255)
-  follower                        String @db.VarChar(255)
-  followed                        String @db.VarChar(255)
-  users_followers_followedTousers users  @relation("followers_followedTousers", fields: [followed], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "followers_followed_foreign")
-  users_followers_followerTousers users  @relation("followers_followerTousers", fields: [follower], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "followers_follower_foreign")
+  id              String @id @db.VarChar(255)
+  follower        String @db.VarChar(255)
+  followed        String @db.VarChar(255)
+  users_followed  users  @relation("followers_followedTousers", fields: [followed], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "followers_followed_foreign")
+  users_following users  @relation("followers_followerTousers", fields: [follower], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "followers_follower_foreign")
 
   @@index([followed], map: "followers_followed_foreign")
   @@index([follower], map: "followers_follower_foreign")
 }
 
 model likes {
-  id      String  @id @db.VarChar(255)
-  user_id String  @db.VarChar(255)
-  post_id String? @db.VarChar(255)
-  posts   posts?  @relation(fields: [post_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "likes_post_id_foreign")
-  users   users   @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "likes_user_id_foreign")
+  id      String @id @db.VarChar(255)
+  user_id String @db.VarChar(255)
+  post_id String @db.VarChar(255)
+  posts   posts  @relation(fields: [post_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "likes_post_id")
+  users   users  @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "likes_user_id")
 
-  @@index([post_id], map: "likes_post_id_foreign")
-  @@index([user_id], map: "likes_user_id_foreign")
+  @@index([post_id], map: "likes_post_id")
+  @@index([user_id], map: "likes_user_id")
 }
 
 model posts {
   id            String  @id @db.VarChar(255)
-  conversation  String  @db.VarChar(255)
+  conversation  String? @db.VarChar(255)
   author_id     String  @db.VarChar(255)
   text          String  @db.Text
   images        String? @db.VarChar(255)
   is_comment    Boolean @default(false)
   creation_date String  @db.VarChar(255)
   likes         likes[]
+  author        users   @relation(fields: [author_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "post_author")
+  posts         posts?  @relation("postsToposts", fields: [conversation], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "post_conversation")
+  comments      posts[] @relation("postsToposts")
+
+  @@index([author_id], map: "post_author")
+  @@index([conversation], map: "post_conversation")
 }
 
 model refresh_tokens {
@@ -57,20 +63,21 @@ model refresh_tokens {
 }
 
 model users {
-  id                                  String      @id @db.VarChar(255)
-  role                                String      @db.VarChar(255)
-  status                              String      @db.VarChar(255)
-  email                               String      @unique(map: "users_email_unique") @db.VarChar(255)
-  password                            String      @db.VarChar(255)
-  username                            String      @unique(map: "users_username_unique") @db.VarChar(15)
-  description                         String?     @db.Text
-  avatar                              String?     @db.VarChar(255)
-  banner                              String?     @db.VarChar(255)
-  date_of_birth                       DateTime?   @db.Date
-  creation_date                       String      @db.VarChar(255)
-  block_block_blockedTousers          block[]     @relation("block_blockedTousers")
-  block_block_blockerTousers          block[]     @relation("block_blockerTousers")
-  followers_followers_followedTousers followers[] @relation("followers_followedTousers")
-  followers_followers_followerTousers followers[] @relation("followers_followerTousers")
-  likes                               likes[]
+  id              String      @id @db.VarChar(255)
+  role            String      @db.VarChar(255)
+  status          String      @db.VarChar(255)
+  email           String      @unique(map: "users_email_unique") @db.VarChar(255)
+  password        String      @db.VarChar(255)
+  username        String      @unique(map: "users_username_unique") @db.VarChar(15)
+  description     String?     @db.Text
+  avatar          String?     @db.VarChar(255)
+  banner          String?     @db.VarChar(255)
+  date_of_birth   DateTime?   @db.Date
+  creation_date   String      @db.VarChar(255)
+  users_blocked   block[]     @relation("block_blockedTousers")
+  users_blocking  block[]     @relation("block_blockerTousers")
+  users_followed  followers[] @relation("followers_followedTousers")
+  users_following followers[] @relation("followers_followerTousers")
+  likes           likes[]
+  posts           posts[]
 }
