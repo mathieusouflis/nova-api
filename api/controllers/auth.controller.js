@@ -37,7 +37,6 @@ exports.login = async (req, res) => {
       httpOnly: true,
       secure: process.env.ENVIRONMENT === "dev" ? false : true,
       sameSite: "None",
-      domain: process.env.ENVIRONMENT === "dev" ? "" : "mathieusouflis.com",
       maxAge: 100 * 365 * 24 * 60 * 60 * 1000, // Durée de vie de 100 ans
     });
 
