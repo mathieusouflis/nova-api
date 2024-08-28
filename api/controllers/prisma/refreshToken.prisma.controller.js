@@ -1,4 +1,3 @@
-const { PrismaClient } = require("@prisma/client");
 const { id_generator } = require("../../../utils/functions/id");
 
 exports.isRefreshTokenExist = async (prisma, token) => {
