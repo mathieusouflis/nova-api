@@ -1,3 +1,4 @@
+const {
   getPostById,
   createPost,
   queryPosts,
@@ -104,7 +105,6 @@ exports.query = async (req, res) => {
     } = req.query;
     const returned_post_number =
       max_results && !isNaN(max_results) ? parseInt(max_results) : 100;
-
 
     const returned_posts = await queryPosts(
       req.user,
