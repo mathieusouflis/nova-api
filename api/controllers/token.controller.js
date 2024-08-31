@@ -1,4 +1,3 @@
-const jwt = require("jsonwebtoken");
 const {
   isRefreshTokenExist,
 } = require("./prisma/refreshToken.prisma.controller");
@@ -24,7 +23,7 @@ exports.refresh_token = async (req, res) => {
       return res.status(401).send("Refresh token is required");
     }
 
-    if (!(await isRefreshTokenExist(req.prisma, refreshToken))) {
+    if (!(await isRefreshTokenExist(refreshToken))) {
       return res.status(401).send("Invalid or expired token");
     }
 

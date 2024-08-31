@@ -1,4 +1,3 @@
-const { read } = require("./database.controller");
 const {
   findUserById,
   findUserByUsername,
@@ -7,7 +6,7 @@ const {
 exports.user_by_id = async (req, res) => {
   try {
     const { id } = req.params;
-    const user = await findUserById(req.prisma, id);
+    const user = await findUserById(id);
 
     if (!user) return res.status(404).send("User not found");
 
@@ -28,7 +27,7 @@ exports.user_by_ids = async (req, res) => {
     const notFoundIds = [];
 
     const userPromises = ids.map(async (id) => {
-      const user = await findUserById(req.prisma, id);
+      const user = await findUserById(id);
       if (user) {
         users.push(user);
       } else {
@@ -51,7 +50,7 @@ exports.user_by_ids = async (req, res) => {
 exports.user_by_username = async (req, res) => {
   try {
     const { username } = req.params;
-    const user = await findUserByUsername(req.prisma, username);
+    const user = await findUserByUsername(username);
     if (!user) return res.status(404).send("User not found");
 
     return res.status(200).json(user);
@@ -71,7 +70,7 @@ exports.user_by_usernames = async (req, res) => {
     const notFoundUsernames = [];
 
     const userPromises = usernames.map(async (username) => {
-      const user = await findUserByUsername(req.prisma, username);
+      const user = await findUserByUsername(username);
       if (user) {
         users.push(user);
       } else {

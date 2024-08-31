@@ -1,8 +1,10 @@
 const { PrismaClient } = require("@prisma/client");
 
+const { prisma } = require("../../../constants/prisma.js");
+
 // USERS
 
-exports.createUser = async (prisma, id, email, password, username) => {
+exports.createUser = async (id, email, password, username) => {
   const user = await prisma.users.create({
     data: {
       id,
@@ -18,7 +20,7 @@ exports.createUser = async (prisma, id, email, password, username) => {
   return user;
 };
 
-exports.findUserByUsername = async (prisma, username) => {
+exports.findUserByUsername = async (username) => {
   const user = await prisma.users.findUnique({
     where: {
       username,
@@ -38,7 +40,7 @@ exports.findUserByUsername = async (prisma, username) => {
   return user;
 };
 
-exports.findUserById = async (prisma, id) => {
+exports.findUserById = async (id) => {
   const user = await prisma.users.findUnique({
     where: {
       id,
@@ -58,7 +60,7 @@ exports.findUserById = async (prisma, id) => {
   return user;
 };
 
-exports.findUserByEmailAndPassword = async (prisma, email) => {
+exports.findUserByEmailAndPassword = async (email) => {
   const user = await prisma.users.findUnique({
     where: {
       email,

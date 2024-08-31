@@ -19,7 +19,7 @@ exports.login = async (req, res) => {
   let { email, password } = req.body;
 
   try {
-    const user = await findUserByEmailAndPassword(req.prisma, email);
+    const user = await findUserByEmailAndPassword(email);
     if (!user) return res.status(404).send("User not found");
     if (!(await compare(password, user.password))) {
       return res.status(401).send("Invalid credentials");
@@ -32,7 +32,7 @@ exports.login = async (req, res) => {
     };
 
     let refresh_token = generate_token(user_data, "refresh");
-    refresh_token = await createRefreshToken(req.prisma, refresh_token);
+    refresh_token = await createRefreshToken(refresh_token);
     res.cookie("refresh_token", refresh_token, {
       httpOnly: true,
       secure: process.env.ENVIRONMENT === "dev" ? false : true,
@@ -55,8 +55,8 @@ exports.register = async (req, res) => {
   const errors = {};
 
   try {
-    const usernameValidator = await validateUsername(req.prisma, username);
-    const emailValidator = await validateEmail(req.prisma, email);
+    const usernameValidator = await validateUsername(username);
+    const emailValidator = await validateEmail(email);
     const passwordValidator = validatePassword(password);
 
     if (!usernameValidator[0]) errors["username"] = usernameValidator[1];
@@ -71,7 +71,7 @@ exports.register = async (req, res) => {
 
     const id = await id_generator();
 
-    await createUser(req.prisma, id, email, password, username);
+    await createUser(id, email, password, username);
 
     return res.status(201).send("User created.");
   } catch (error) {
@@ -88,7 +88,7 @@ exports.logout = async (req, res) => {
       return res.status(401).send("Missing refresh token");
     }
 
-    if (!(await isRefreshTokenExist(req.prisma, refresh_token))) {
+    if (!(await isRefreshTokenExist(refresh_token))) {
       return res.status(404).send("Token not found.");
     }
     res.clearCookie("refresh_token");

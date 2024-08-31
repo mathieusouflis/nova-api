@@ -1,5 +1,3 @@
-const { read, write } = require("./database.controller");
-
 exports.lookup = (req, res) => {
   try {
     const baseUrl = req.baseUrl.split("/");

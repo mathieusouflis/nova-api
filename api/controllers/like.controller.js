@@ -14,7 +14,7 @@ exports.liked_posts = async (req, res) => {
       return res.status(403).send("Forbidden");
     }
 
-    const likes = await likedPost(req.prisma, user_id);
+    const likes = await likedPost(user_id);
     const postIds = likes.map((like) => like.post_id);
 
     return res.status(200).json({ likes: postIds });
@@ -27,7 +27,7 @@ exports.liked_posts = async (req, res) => {
 exports.liking_users = async (req, res) => {
   try {
     const { post_id } = req.params;
-    const post = await getPostById(req.prisma, post_id);
+    const post = await getPostById(post_id);
     if (!post) {
       return res.status(404).send("Post not found.");
     }
@@ -35,7 +35,7 @@ exports.liking_users = async (req, res) => {
       return res.status(403).send("Forbidden");
     }
 
-    const likes = await likingUsers(req.prisma, post_id);
+    const likes = await likingUsers(post_id);
     const userIds = likes.map((like) => like.user_id);
 
     return res.status(200).json({ likes: userIds });
@@ -53,11 +53,11 @@ exports.is_liking_post = async (req, res) => {
     if (user_id !== req.user.id) {
       return res.status(403).send("Forbidden");
     }
-    if (!(await getPostById(req.prisma, post_id))) {
+    if (!(await getPostById(post_id))) {
       return res.status(404).send("Post not found.");
     }
 
-    const isLiking = await likeExist(req.prisma, user_id, post_id);
+    const isLiking = await likeExist(user_id, post_id);
     if (isLiking) {
       return res.status(200).send("Liking");
     } else {
@@ -78,17 +78,17 @@ exports.like = async (req, res) => {
       return res.status(403).send("Forbidden");
     }
 
-    const post = await getPostById(req.prisma, post_id);
+    const post = await getPostById(req.user, post_id);
     if (!post) {
       return res.status(404).send("Post not found.");
     }
 
-    const isLiking = await likeExist(req.prisma, user_id, post_id);
+    const isLiking = await likeExist(user_id, post_id);
     if (isLiking) {
       return res.status(409).send("Already liked this post");
     }
 
-    await likePost(req.prisma, user_id, post_id);
+    await likePost(user_id, post_id);
     return res.status(201).send("Post liked.");
   } catch (error) {
     console.error(error);
@@ -104,17 +104,17 @@ exports.unlike = async (req, res) => {
       return res.status(403).send("Forbidden");
     }
 
-    const post = await getPostById(req.prisma, post_id);
+    const post = await getPostById(post_id);
     if (!post) {
       return res.status(404).send("Post not found.");
     }
 
-    const isLiking = await likeExist(req.prisma, user_id, post_id);
+    const isLiking = await likeExist(user_id, post_id);
     if (!isLiking) {
       return res.status(404).send("Like not found.");
     }
 
-    await unlikePost(req.prisma, user_id, post_id);
+    await unlikePost(user_id, post_id);
     return res.status(200).send("Post unliked.");
   } catch (error) {
     console.error(error);

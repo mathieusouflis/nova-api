@@ -1,6 +1,8 @@
 const { id_generator } = require("../../../utils/functions/id");
 
-exports.isRefreshTokenExist = async (prisma, token) => {
+const { prisma } = require("../../../constants/prisma.js");
+
+exports.isRefreshTokenExist = async (token) => {
   const refresh_token = (await prisma.refresh_tokens.findUnique({
     where: {
       refresh_token: token,
@@ -15,8 +17,8 @@ exports.isRefreshTokenExist = async (prisma, token) => {
   return refresh_token;
 };
 
-exports.createRefreshToken = async (prisma, token) => {
-  if (await this.isRefreshTokenExist(prisma, token)) return token;
+exports.createRefreshToken = async (token) => {
+  if (await this.isRefreshTokenExist(token)) return token;
 
   try {
     const refresh_token = await prisma.refresh_tokens.create({
@@ -32,7 +34,7 @@ exports.createRefreshToken = async (prisma, token) => {
   }
 };
 
-exports.deleteRefreshToken = async (prisma, token) => {
+exports.deleteRefreshToken = async (token) => {
   const refresh_token = await prisma.refresh_tokens.delete({
     where: {
       refresh_token: token,

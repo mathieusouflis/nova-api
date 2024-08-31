@@ -1,5 +1,3 @@
-const { read, write } = require("./database.controller");
-
 exports.get_followers = (req, res) => {
   try {
     const baseUrl = req.baseUrl.split("/");

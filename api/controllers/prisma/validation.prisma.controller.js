@@ -1,6 +1,8 @@
 const { PrismaClient } = require("@prisma/client");
 
-exports.isUsernameTaken = async (prisma, username) => {
+const { prisma } = require("../../../constants/prisma.js");
+
+exports.isUsernameTaken = async (username) => {
   const user = await prisma.users.findUnique({
     where: {
       username,
@@ -13,7 +15,7 @@ exports.isUsernameTaken = async (prisma, username) => {
   return user ? true : false;
 };
 
-exports.isEmailTaken = async (prisma, email) => {
+exports.isEmailTaken = async (email) => {
   const user = await prisma.users.findUnique({
     where: { email },
     select: { email: true },
