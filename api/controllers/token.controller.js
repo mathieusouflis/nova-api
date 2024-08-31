@@ -1,3 +1,4 @@
+const jwt = require("jsonwebtoken")
 const {
   isRefreshTokenExist,
 } = require("./prisma/refreshToken.prisma.controller");
