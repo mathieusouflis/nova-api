@@ -1,3 +1,6 @@
+#CUSTOMS
+./src/utils/apiUrl.js
+
 # Logs
 logs
 *.log
