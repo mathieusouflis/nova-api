@@ -1,8 +1,8 @@
-const jwt = require("jsonwebtoken");
-const dotenv = require("dotenv");
+import jwt from "jsonwebtoken";
+import dotenv from "dotenv";
 dotenv.config();
 
-exports.tokenAuthorisation = (req, res, next) => {
+export default function tokenAuthorisation(req, res, next) {
   const header = req.headers["authorization"];
   const token = header && header.split(" ")[1];
 
@@ -15,4 +15,4 @@ exports.tokenAuthorisation = (req, res, next) => {
     req.user = user;
     next();
   });
-};
+}

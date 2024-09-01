@@ -1,77 +1,79 @@
-const { PrismaClient } = require("@prisma/client");
-
-const { prisma } = require("../../../constants/prisma.js");
+import prisma from "../../../constants/prisma.js";
 
 // USERS
 
-exports.createUser = async (id, email, password, username) => {
-  const user = await prisma.users.create({
-    data: {
-      id,
-      role: "Member",
-      status: "public",
-      email,
-      password,
-      username,
-      creation_date: Date.now().toString(),
-    },
-  });
+class UsersPrismaController {
+  async createUser(id, email, password, username) {
+    const user = await prisma.users.create({
+      data: {
+        id,
+        role: "Member",
+        status: "public",
+        email,
+        password,
+        username,
+        creation_date: Date.now().toString(),
+      },
+    });
 
-  return user;
-};
+    return user;
+  }
 
-exports.findUserByUsername = async (username) => {
-  const user = await prisma.users.findUnique({
-    where: {
-      username,
-    },
-    select: {
-      id: true,
-      username: true,
-      status: true,
-      description: true,
-      avatar: true,
-      banner: true,
-      date_of_birth: true,
-      creation_date: true,
-    },
-  });
+  async findUserByUsername(username) {
+    const user = await prisma.users.findUnique({
+      where: {
+        username,
+      },
+      select: {
+        id: true,
+        username: true,
+        status: true,
+        description: true,
+        avatar: true,
+        banner: true,
+        date_of_birth: true,
+        creation_date: true,
+      },
+    });
 
-  return user;
-};
+    return user;
+  }
 
-exports.findUserById = async (id) => {
-  const user = await prisma.users.findUnique({
-    where: {
-      id,
-    },
-    select: {
-      id: true,
-      username: true,
-      status: true,
-      description: true,
-      avatar: true,
-      banner: true,
-      date_of_birth: true,
-      creation_date: true,
-    },
-  });
+  async findUserById(id) {
+    const user = await prisma.users.findUnique({
+      where: {
+        id,
+      },
+      select: {
+        id: true,
+        username: true,
+        status: true,
+        description: true,
+        avatar: true,
+        banner: true,
+        date_of_birth: true,
+        creation_date: true,
+      },
+    });
 
-  return user;
-};
+    return user;
+  }
 
-exports.findUserByEmailAndPassword = async (email) => {
-  const user = await prisma.users.findUnique({
-    where: {
-      email,
-    },
-    select: {
-      id: true,
-      username: true,
-      role: true,
-      password: true,
-    },
-  });
+  async findUserByEmailAndPassword(email) {
+    const user = await prisma.users.findUnique({
+      where: {
+        email,
+      },
+      select: {
+        id: true,
+        username: true,
+        role: true,
+        password: true,
+      },
+    });
 
-  return user;
-};
+    return user;
+  }
+}
+
+export default new UsersPrismaController();

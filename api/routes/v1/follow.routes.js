@@ -1,5 +1,5 @@
-const express = require("express");
-const controller = require("../../controllers/follow.controller");
+import express from "express";
+import controller from "../../controllers/follow.controller.js";
 
 const router = express.Router();
 
@@ -11,4 +11,4 @@ router
   .post(controller.follow);
 router.route("/following/:target_user_id").delete(controller.unfollow);
 
-module.exports = router;
+export default router;

@@ -1,12 +1,13 @@
-const express = require("express");
-const bodyparser = require("body-parser");
-const cookieparser = require("cookie-parser");
-const cors = require("cors");
-const helmet = require("helmet");
-require("dotenv").config();
+import express from "express";
+import bodyparser from "body-parser";
+import cookieparser from "cookie-parser";
+import cors from "cors";
+import helmet from "helmet";
+import dotenv from "dotenv";
+dotenv.config();
 
-const routes = require("../api/routes/v1/index");
-const { path } = require("../api/middleware/pathUsed");
+import routes from "../api/routes/v1/index.js";
+import path from "../api/middleware/pathUsed.js";
 
 const app = express();
 
@@ -26,4 +27,4 @@ app.use(bodyparser.json());
 app.options("*", cors(corsOptions));
 app.use("/api", path, routes);
 
-module.exports = app;
+export default app;

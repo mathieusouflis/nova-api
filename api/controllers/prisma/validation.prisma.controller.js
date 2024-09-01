@@ -1,25 +1,27 @@
-const { PrismaClient } = require("@prisma/client");
+import prisma from "../../../constants/prisma.js";
 
-const { prisma } = require("../../../constants/prisma.js");
+class ValidationPrismaController {
+  async isUsernameTaken(username) {
+    const user = await prisma.users.findUnique({
+      where: {
+        username,
+      },
+      select: {
+        username: true,
+      },
+    });
 
-exports.isUsernameTaken = async (username) => {
-  const user = await prisma.users.findUnique({
-    where: {
-      username,
-    },
-    select: {
-      username: true,
-    },
-  });
+    return user ? true : false;
+  }
 
-  return user ? true : false;
-};
+  async isEmailTaken(email) {
+    const user = await prisma.users.findUnique({
+      where: { email },
+      select: { email: true },
+    });
 
-exports.isEmailTaken = async (email) => {
-  const user = await prisma.users.findUnique({
-    where: { email },
-    select: { email: true },
-  });
+    return user ? true : false;
+  }
+}
 
-  return user ? true : false;
-};
+export default new ValidationPrismaController();

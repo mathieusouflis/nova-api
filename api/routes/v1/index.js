@@ -1,14 +1,12 @@
-const express = require("express");
-const postRoutes = require("./post.routes.js");
-const userRoutes = require("./user.routes.js");
-const followRoutes = require("./follow.routes.js");
-const blockingRoutes = require("./blocking.routes.js");
-const likingRoutes = require("./like.routes.js");
-const authRoutes = require("./auth.routes.js");
-const tokenRoutes = require("./token.routes.js");
-const {
-  tokenAuthorisation,
-} = require("../../middleware/tokenAuthorisation.js");
+import express from "express";
+import postRoutes from "./post.routes.js";
+import userRoutes from "./user.routes.js";
+import followRoutes from "./follow.routes.js";
+import blockingRoutes from "./blocking.routes.js";
+import likingRoutes from "./like.routes.js";
+import authRoutes from "./auth.routes.js";
+import tokenRoutes from "./token.routes.js";
+import tokenAuthorisation from "../../middleware/tokenAuthorisation.js";
 
 const router = express.Router();
 
@@ -29,4 +27,4 @@ router.use("/auth", authRoutes);
 router.use("/tokens", tokenRoutes);
 router.use("/", tokenAuthorisation, likingRoutes);
 
-module.exports = router;
+export default router;

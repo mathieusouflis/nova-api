@@ -1,5 +1,6 @@
-const { port } = require("./constants/dev");
-const app = require("./config/express.config");
+import { port } from "./constants/dev.js";
+import "./constants/dev.js";
+import app from "./config/express.config.js";
 
 app.listen(port, (err) => {
   if (err) {

@@ -1,45 +1,49 @@
-const { id_generator } = require("../../../utils/functions/id");
+import id_generator from "../../../utils/functions/id.js";
 
-const { prisma } = require("../../../constants/prisma.js");
+import prisma from "../../../constants/prisma.js";
 
-exports.isRefreshTokenExist = async (token) => {
-  const refresh_token = (await prisma.refresh_tokens.findUnique({
-    where: {
-      refresh_token: token,
-    },
-    select: {
-      refresh_token: true,
-    },
-  }))
-    ? true
-    : false;
+class RefreshTokenPrismaController {
+  async isRefreshTokenExist(token) {
+    const refresh_token = (await prisma.refresh_tokens.findUnique({
+      where: {
+        refresh_token: token,
+      },
+      select: {
+        refresh_token: true,
+      },
+    }))
+      ? true
+      : false;
 
-  return refresh_token;
-};
+    return refresh_token;
+  }
 
-exports.createRefreshToken = async (token) => {
-  if (await this.isRefreshTokenExist(token)) return token;
+  async createRefreshToken(token) {
+    if (await this.isRefreshTokenExist(token)) return token;
 
-  try {
-    const refresh_token = await prisma.refresh_tokens.create({
-      data: {
-        id: await id_generator(),
+    try {
+      const refresh_token = await prisma.refresh_tokens.create({
+        data: {
+          id: await id_generator(),
+          refresh_token: token,
+        },
+      });
+
+      return refresh_token.refresh_token;
+    } catch (err) {
+      throw new Error(err);
+    }
+  }
+
+  async deleteRefreshToken(token) {
+    const refresh_token = await prisma.refresh_tokens.delete({
+      where: {
         refresh_token: token,
       },
     });
 
-    return refresh_token.refresh_token;
-  } catch (err) {
-    throw new Error(err);
+    return refresh_token;
   }
-};
+}
 
-exports.deleteRefreshToken = async (token) => {
-  const refresh_token = await prisma.refresh_tokens.delete({
-    where: {
-      refresh_token: token,
-    },
-  });
-
-  return refresh_token;
-};
+export default new RefreshTokenPrismaController();
