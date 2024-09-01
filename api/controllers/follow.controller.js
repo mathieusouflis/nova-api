@@ -1,3 +1,6 @@
+import FollowPrismaController from "./prisma/follow.prisma.controller.js";
+import UsersPrismaController from "./prisma/users.prisma.controller.js";
+
 class FollowController {
   get_followers = (req, res) => {
     try {
@@ -38,33 +41,20 @@ class FollowController {
       const baseUrl = req.baseUrl.split("/");
       const user_id = baseUrl[baseUrl.length - 1];
       const { targeted_id } = req.body;
-
       if (user_id !== req.user.id || user_id === targeted_id) {
         return res.status(403).send("Forbidden");
       }
 
-      const users_data = read("users");
-      if (!users_data[targeted_id]) {
+      if (!UsersPrismaController.findUserById(targeted_id)) {
         return res.status(404).send("User not found");
       }
 
-      const follow_data = read("followers");
-
-      const alreadyFollowing = follow_data.some(
-        (follow) =>
-          follow["follower"] === user_id && follow["following"] === targeted_id,
-      );
-
-      if (alreadyFollowing) {
-        return res.status(409).send("You are already following this user");
+      if (FollowPrismaController.isFollowing(user_id, targeted_id) === true) {
+        return res.status(409).send("User allready followed");
       }
 
-      follow_data.push({
-        follower: user_id,
-        following: targeted_id,
-      });
+      FollowPrismaController.follow(user_id, targeted_id);
 
-      write("followers", follow_data);
       return res.status(201).send("User followed");
     } catch (error) {
       console.error(error);
@@ -82,23 +72,17 @@ class FollowController {
         return res.status(403).send("Forbidden");
       }
 
-      const users_data = read("users");
-      if (!users_data[target_user_id]) {
+      if (!UsersPrismaController.findUserById(target_user_id)) {
         return res.status(404).send("User not found");
       }
 
-      const follow_data = read("followers");
-      const followIndex = follow_data.findIndex(
-        (follow) =>
-          follow.follower === user_id && follow.following === target_user_id,
-      );
-
-      if (followIndex === -1) {
+      if (
+        FollowPrismaController.isFollowing(user_id, target_user_id) === false
+      ) {
         return res.status(404).send("Follow not found");
       }
 
-      follow_data.splice(followIndex, 1);
-      write("followers", follow_data);
+      FollowPrismaController.unfollow(user_id, target_user_id);
 
       return res.status(200).send("User unfollowed");
     } catch (error) {
