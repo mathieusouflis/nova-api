@@ -40,6 +40,7 @@ class PostPrismaController {
             id: true,
             username: true,
             description: true,
+            avatar: true,
             _count: {
               select: {
                 users_followed: {
@@ -103,6 +104,7 @@ class PostPrismaController {
             id: true,
             username: true,
             description: true,
+            avatar: true,
             _count: {
               select: {
                 users_followed: {
