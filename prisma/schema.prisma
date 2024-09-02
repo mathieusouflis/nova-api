@@ -46,8 +46,8 @@ model posts {
   author_id     String  @db.VarChar(255)
   text          String  @db.Text
   images        String? @db.VarChar(255)
-  is_comment    Boolean @default(false)
   creation_date String  @db.VarChar(255)
+  is_comment    Boolean @default(false)
   likes         likes[]
   author        users   @relation(fields: [author_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "post_author")
   posts         posts?  @relation("postsToposts", fields: [conversation], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "post_conversation")
@@ -70,8 +70,8 @@ model users {
   password        String      @db.VarChar(255)
   username        String      @unique(map: "users_username_unique") @db.VarChar(15)
   description     String?     @db.Text
-  avatar          String?     @db.VarChar(255)
-  banner          String?     @db.VarChar(255)
+  avatar          String?     @default("https://ionicframework.com/docs/img/demos/avatar.svg") @db.VarChar(255)
+  banner          String?     @default("https://t4.ftcdn.net/jpg/04/92/22/93/360_F_492229389_5ve1bCKgYrLRHpCj3o4FAzz60efaZgG0.jpg") @db.VarChar(255)
   date_of_birth   DateTime?   @db.Date
   creation_date   String      @db.VarChar(255)
   users_blocked   block[]     @relation("block_blockedTousers")
