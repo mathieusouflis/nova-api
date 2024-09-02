@@ -44,15 +44,16 @@ class UsersPrismaController {
       where: {
         id,
       },
-      select: {
-        id: true,
-        username: true,
-        status: true,
-        description: true,
-        avatar: true,
-        banner: true,
-        date_of_birth: true,
-        creation_date: true,
+
+      include: {
+        _count: {
+          select: {
+            users_following: true,
+            users_followed: true,
+          },
+        },
+        users_followed: true,
+        users_following: true,
       },
     });
 
