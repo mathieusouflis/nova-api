@@ -67,7 +67,6 @@ class PostPrismaController {
     user_id,
     conversation_id,
   ) {
-    console.log(conversation_id);
     const posts = await prisma.posts.findMany({
       where: {
         AND: [
