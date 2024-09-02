@@ -34,7 +34,7 @@ class AuthController {
         httpOnly: true,
         secure: process.env.ENVIRONMENT === "dev" ? false : true,
         sameSite: "None",
-        maxAge: 60 * 60 * 24 * 60, // Durée de vie de 2 mois
+        expires: new Date(Date.now() + 60 * 60 * 24 * 60 * 1000), // Durée de vie de 2 mois
       });
 
       return res.status(200).json({
