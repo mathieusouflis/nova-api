@@ -103,7 +103,7 @@ class LikeController {
         return res.status(403).send("Forbidden");
       }
 
-      const post = await PostPrismaController.getPostById(post_id);
+      const post = await PostPrismaController.getPostById(req.user, post_id);
       if (!post) {
         return res.status(404).send("Post not found.");
       }
@@ -113,7 +113,7 @@ class LikeController {
         return res.status(404).send("Like not found.");
       }
 
-      await unLikePrismaController.likePost(user_id, post_id);
+      await LikePrismaController.unlikePost(user_id, post_id);
       return res.status(200).send("Post unliked.");
     } catch (error) {
       console.error(error);
