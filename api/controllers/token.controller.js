@@ -40,7 +40,7 @@ class TokenController {
         delete user["iat"];
         delete user["exp"];
 
-        const accessToken = exports.generate_token(user, "access");
+        const accessToken = this.generate_token(user, "access");
 
         return res.status(200).json({ access_token: accessToken });
       });
