@@ -18,7 +18,7 @@ class AuthController {
       const user = await UserController.findUserByEmailAndPassword(email);
       if (!user) return res.status(404).send("User not found");
       if (!(await compare(password, user.password))) {
-        return res.status(401).send("Invalid credentials");
+        return res.status(401).send("Wrong Password");
       }
 
       const user_data = {
@@ -33,7 +33,8 @@ class AuthController {
       res.cookie("refresh_token", refresh_token, {
         httpOnly: true,
         secure: process.env.ENVIRONMENT === "dev" ? false : true,
-        sameSite: "None",
+        // sameSite: "None",
+        sameSite: "Lax",
         expires: new Date(Date.now() + 60 * 60 * 24 * 60 * 1000), // Durée de vie de 2 mois
       });
 
