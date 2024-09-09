@@ -34,7 +34,6 @@ class AuthController {
         httpOnly: true,
         secure: true,
         sameSite: "None",
-        // sameSite: "Lax",
         expires: new Date(Date.now() + 60 * 60 * 24 * 60 * 1000), // Durée de vie de 2 mois
       });
 
