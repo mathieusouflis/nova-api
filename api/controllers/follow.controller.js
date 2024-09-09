@@ -2,15 +2,12 @@ import FollowPrismaController from "./prisma/follow.prisma.controller.js";
 import UsersPrismaController from "./prisma/users.prisma.controller.js";
 
 class FollowController {
-  get_followers = (req, res) => {
+  get_followers = async (req, res) => {
     try {
       const baseUrl = req.baseUrl.split("/");
       const user_id = baseUrl[baseUrl.length - 1];
 
-      const data = read("followers");
-      const followers_list = data
-        .filter((follow) => follow["following"] === user_id)
-        .map((follow) => follow["follower"]);
+      const followers_list = await FollowPrismaController.getFollow(user_id, 1);
 
       return res.status(200).json(followers_list);
     } catch (error) {
@@ -19,15 +16,12 @@ class FollowController {
     }
   };
 
-  get_following = (req, res) => {
+  get_following = async (req, res) => {
     try {
       const baseUrl = req.baseUrl.split("/");
       const user_id = baseUrl[baseUrl.length - 1];
 
-      const data = read("followers");
-      const following_list = data
-        .filter((follow) => follow["follower"] === user_id)
-        .map((follow) => follow["following"]);
+      const following_list = await FollowPrismaController.getFollow(user_id, 2);
 
       return res.status(200).json(following_list);
     } catch (error) {
