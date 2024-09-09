@@ -3,7 +3,7 @@ import controller from "../../controllers/follow.controller.js";
 
 const router = express.Router();
 
-// router.route("/followers").get(controller.get_followers);
+router.route("/followers").get(controller.get_followers);
 
 router
   .route("/following")
