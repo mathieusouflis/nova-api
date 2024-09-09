@@ -32,9 +32,9 @@ class AuthController {
         await RefreshTokenPrismaController.createRefreshToken(refresh_token);
       res.cookie("refresh_token", refresh_token, {
         httpOnly: true,
-        secure: process.env.ENVIRONMENT === "dev" ? false : true,
-        // sameSite: "None",
-        sameSite: "Lax",
+        secure: true,
+        sameSite: "None",
+        // sameSite: "Lax",
         expires: new Date(Date.now() + 60 * 60 * 24 * 60 * 1000), // Durée de vie de 2 mois
       });
 
