@@ -19,11 +19,11 @@ model block {
 }
 
 model followers {
-  id              String @id @db.VarChar(255)
-  follower        String @db.VarChar(255)
-  followed        String @db.VarChar(255)
-  users_followed  users  @relation("followers_followedTousers", fields: [followed], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "followers_followed_foreign")
-  users_following users  @relation("followers_followerTousers", fields: [follower], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "followers_follower_foreign")
+  id             String @id @db.VarChar(255)
+  follower       String @db.VarChar(255)
+  followed       String @db.VarChar(255)
+  user_followed  users  @relation("followers_followedTousers", fields: [followed], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "followers_followed_foreign")
+  user_following users  @relation("followers_followerTousers", fields: [follower], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "followers_follower_foreign")
 
   @@index([followed], map: "followers_followed_foreign")
   @@index([follower], map: "followers_follower_foreign")
