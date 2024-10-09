@@ -7,8 +7,6 @@ import validatePassword from "../validators/password.validator.js";
 import validateUsername from "../validators/username.validator.js";
 import UserController from "./prisma/users.prisma.controller.js";
 import RefreshTokenPrismaController from "./prisma/refreshToken.prisma.controller.js";
-import dotenv from "dotenv";
-dotenv.config();
 
 class AuthController {
   async login(req, res) {

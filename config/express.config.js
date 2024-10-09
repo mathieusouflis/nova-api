@@ -25,6 +25,9 @@ app.use(helmet());
 app.use(bodyparser.json());
 
 app.options("*", cors(corsOptions));
+app.get("/", (req, res) => {
+  res.send("I am Online little cookie");
+});
 app.use("/api", path, routes);
 
 export default app;
