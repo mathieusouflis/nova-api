@@ -1,0 +1,102 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model block {
+  id             String          @id @db.VarChar(255)
+  blocker        String          @db.VarChar(255)
+  blocked        String          @db.VarChar(255)
+  users_blocked  users           @relation("block_blockedTousers", fields: [blocked], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "block_blocked")
+  users_blocking users           @relation("block_blockerTousers", fields: [blocker], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "block_blocker")
+  notifications  notifications[]
+
+  @@index([blocked], map: "block_blocked")
+  @@index([blocker], map: "block_blocker")
+}
+
+model followers {
+  id             String          @id @db.VarChar(255)
+  follower       String          @db.VarChar(255)
+  followed       String          @db.VarChar(255)
+  user_followed  users           @relation("followers_followedTousers", fields: [followed], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "followers_followed_foreign")
+  user_following users           @relation("followers_followerTousers", fields: [follower], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "followers_follower_foreign")
+  notifications  notifications[]
+
+  @@index([followed], map: "followers_followed_foreign")
+  @@index([follower], map: "followers_follower_foreign")
+}
+
+model likes {
+  id            String          @id @db.VarChar(255)
+  user_id       String          @db.VarChar(255)
+  post_id       String          @db.VarChar(255)
+  posts         posts           @relation(fields: [post_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "likes_post_id")
+  users         users           @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "likes_user_id")
+  notifications notifications[]
+
+  @@index([post_id], map: "likes_post_id")
+  @@index([user_id], map: "likes_user_id")
+}
+
+model notifications {
+  id             String    @id @db.VarChar(255)
+  ressource_id   String    @db.VarChar(255)
+  author_id      String    @db.VarChar(255)
+  target_id      String    @db.VarChar(255)
+  ressource_type String    @db.VarChar(255)
+  creation_date  String    @db.VarChar(255)
+  block          block     @relation(fields: [ressource_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "notifications_block_id_fk")
+  followers      followers @relation(fields: [ressource_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "notifications_followers_id_fk")
+  likes          likes     @relation(fields: [ressource_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "notifications_likes_id_fk")
+  posts          posts     @relation(fields: [ressource_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "notifications_posts_id_fk")
+
+  @@index([ressource_id], map: "notifications_posts_id_fk")
+}
+
+model posts {
+  id            String          @id @db.VarChar(255)
+  conversation  String?         @db.VarChar(255)
+  author_id     String          @db.VarChar(255)
+  text          String          @db.Text
+  images        String?         @db.VarChar(255)
+  creation_date String          @db.VarChar(255)
+  is_comment    Boolean         @default(false)
+  likes         likes[]
+  notifications notifications[]
+  author        users           @relation(fields: [author_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "post_author")
+  posts         posts?          @relation("postsToposts", fields: [conversation], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "post_conversation")
+  comments      posts[]         @relation("postsToposts")
+
+  @@index([author_id], map: "post_author")
+  @@index([conversation], map: "post_conversation")
+}
+
+model refresh_tokens {
+  id            String @id @db.VarChar(255)
+  refresh_token String @unique(map: "refresh_tokens_pk_2") @db.VarChar(512)
+}
+
+model users {
+  id              String      @id @db.VarChar(255)
+  role            String      @db.VarChar(255)
+  status          String      @db.VarChar(255)
+  email           String      @unique(map: "users_email_unique") @db.VarChar(255)
+  password        String      @db.VarChar(255)
+  username        String      @unique(map: "users_username_unique") @db.VarChar(15)
+  description     String?     @db.Text
+  avatar          String?     @default("https://ionicframework.com/docs/img/demos/avatar.svg") @db.VarChar(255)
+  banner          String?     @default("https://t4.ftcdn.net/jpg/04/92/22/93/360_F_492229389_5ve1bCKgYrLRHpCj3o4FAzz60efaZgG0.jpg") @db.VarChar(255)
+  date_of_birth   DateTime?   @db.Date
+  creation_date   String      @db.VarChar(255)
+  users_blocked   block[]     @relation("block_blockedTousers")
+  users_blocking  block[]     @relation("block_blockerTousers")
+  users_followed  followers[] @relation("followers_followedTousers")
+  users_following followers[] @relation("followers_followerTousers")
+  likes           likes[]
+  posts           posts[]
+}
