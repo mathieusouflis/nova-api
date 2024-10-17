@@ -11,7 +11,7 @@ class PostPrismaController {
         conversation: conversation ? conversation.toString() : null,
         author_id,
         text,
-        is_comment: conversation ? true : false,
+        is_comment: conversation ? 1 : 0,
         creation_date: Date.now().toString(),
       },
     });
