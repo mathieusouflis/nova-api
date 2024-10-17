@@ -16,21 +16,14 @@ const corsOptions = {
   methods: ["GET", "POST", "PUT", "DELETE"],
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true,
+  sameSite: "None",
   optionsSuccessStatus: 200,
 };
-app.options("*", cors(corsOptions));
 app.use(cors(corsOptions));
 app.use(cookieparser());
 app.use(helmet());
 app.use(bodyparser.json());
 
-app.use((req, res, next) => {
-  // Check the request origin or URL path to set specific referrer policy
-  res.setHeader("Referrer-Policy", "strict-origin");
-  next();
-});
-
-app.options("*", cors(corsOptions));
 app.get("/", (req, res) => {
   res.send("I am Online little cookie");
 });
