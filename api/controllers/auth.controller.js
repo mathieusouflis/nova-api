@@ -11,6 +11,7 @@ import RefreshTokenPrismaController from "./prisma/refreshToken.prisma.controlle
 class AuthController {
   async login(req, res) {
     let { email, password } = req.body;
+    const { cookie_consent } = req.cookies;
 
     try {
       const user = await UserController.findUserByEmailAndPassword(email);
@@ -25,15 +26,17 @@ class AuthController {
         role: user.role,
       };
 
-      let refresh_token = TokenController.generate_token(user_data, "refresh");
-      refresh_token =
-        await RefreshTokenPrismaController.createRefreshToken(refresh_token);
-      res.cookie("refresh_token", refresh_token, {
-        httpOnly: true,
-        secure: true,
-        sameSite: "None",
-        expires: new Date(Date.now() + 60 * 60 * 24 * 60 * 1000), // Durée de vie de 2 mois
-      });
+      if (cookie_consent === "true") {
+        let refresh_token = TokenController.generate_token(user_data, "refresh");
+        refresh_token =
+          await RefreshTokenPrismaController.createRefreshToken(refresh_token);
+        res.cookie("refresh_token", refresh_token, {
+          httpOnly: true,
+          secure: true,
+          sameSite: "None",
+          expires: new Date(Date.now() + 60 * 60 * 24 * 60 * 1000), // Durée de vie de 2 mois
+        });
+      }
 
       return res.status(200).json({
         access_token: TokenController.generate_token(user_data, "access"),
